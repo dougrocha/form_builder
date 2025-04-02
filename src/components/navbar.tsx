@@ -12,8 +12,10 @@ export default async function Navbar() {
   });
 
   return (
-    <nav className="flex justify-center p-2.5">
-      <div>CSE 412 Project Forms</div>
+    <nav className="flex justify-center py-2.5 border-b-2">
+      <h1 className="text-2xl font-bold text-gray-800">
+        CSE 412 Project - Forms
+      </h1>
       <div className="ml-auto">
         {session ? (
           <Avatar />

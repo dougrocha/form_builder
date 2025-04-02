@@ -1,4 +1,4 @@
-import { api, HydrateClient } from "~/trpc/server";
+import { caller, HydrateClient } from "~/trpc/server";
 import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
 import SignUpForm from "../components/SignUpForm";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export default async function Home() {
-  const forms = await api.form.getAllForms();
+  const forms = await caller.form.getAllForms();
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -28,7 +28,7 @@ export default async function Home() {
             </Button>
           </div>
         ) : (
-          <Tabs defaultValue="signup" className="flex w-full justify-center">
+          <Tabs defaultValue="login" className="flex w-full justify-center">
             <TabsList className="w-full">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>

@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -35,6 +35,10 @@ export const form = pgTable("form", {
   updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 });
 
+export const formRelations = relations(form, ({ many }) => ({
+  fields: many(formField),
+}));
+
 export const formField = pgTable("form_field", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formId: integer()
@@ -43,11 +47,16 @@ export const formField = pgTable("form_field", {
   label: varchar({ length: 256 }).notNull(),
   type: fieldType(),
   isRequired: boolean().default(false).notNull(),
+  isPublished: boolean().default(false).notNull(),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 });
+
+export const formFieldRelations = relations(formField, ({ many }) => ({
+  fieldOptions: many(formFieldOption),
+}));
 
 export const formFieldOption = pgTable("form_field_option", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
