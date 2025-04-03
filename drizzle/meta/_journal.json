@@ -5,15 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1743458992712,
-      "tag": "0000_condemned_kronos",
+      "when": 1743716622026,
+      "tag": "0000_perfect_hairball",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1743462231073,
-      "tag": "0001_famous_maximus",
+      "when": 1743717453142,
+      "tag": "0001_regular_meteorite",
       "breakpoints": true
     }
   ]

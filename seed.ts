@@ -1,6 +1,5 @@
-import { reset, seed } from "drizzle-seed";
-
 import * as schema from "./src/server/db/schema";
+import { reset, seed } from "drizzle-seed";
 import { db } from "~/server/db";
 
 async function main() {

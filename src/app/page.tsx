@@ -1,14 +1,13 @@
-import { caller, HydrateClient } from "~/trpc/server";
-import { auth } from "~/lib/auth";
-import { headers } from "next/headers";
-import SignUpForm from "../components/SignUpForm";
 import LoginForm from "../components/LoginForm";
-import { Button } from "~/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Suspense } from "react";
+import SignUpForm from "../components/SignUpForm";
 import FormList from "./form/form-list";
+import { headers } from "next/headers";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { auth } from "~/lib/auth";
+import { HydrateClient, caller } from "~/trpc/server";
 
 export default async function Home() {
   const forms = await caller.form.getAllForms();

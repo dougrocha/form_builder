@@ -1,6 +1,4 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
+import { user } from "./auth";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -11,7 +9,6 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
 
 export const fieldType = pgEnum("field_type", [
   "text",
@@ -22,10 +19,11 @@ export const fieldType = pgEnum("field_type", [
 ]);
 
 export const form = pgTable("form", {
-  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  id: integer().primaryKey(),
   title: varchar({ length: 256 }).notNull(),
   description: varchar({ length: 1024 }),
   responses: integer().default(0),
+  published: boolean().default(false).notNull(),
   creator: text()
     .notNull()
     .references(() => user.id),
@@ -42,12 +40,13 @@ export const formRelations = relations(form, ({ many }) => ({
 export const formField = pgTable("form_field", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formId: integer()
-    .notNull()
-    .references(() => form.id),
+    .references(() => form.id, { onDelete: "cascade" })
+    .notNull(),
   label: varchar({ length: 256 }).notNull(),
+  description: varchar({ length: 1024 }),
+  position: integer().notNull(),
   type: fieldType(),
-  isRequired: boolean().default(false).notNull(),
-  isPublished: boolean().default(false).notNull(),
+  required: boolean().default(false).notNull(),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -61,11 +60,9 @@ export const formFieldRelations = relations(formField, ({ many }) => ({
 export const formFieldOption = pgTable("form_field_option", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formFieldId: integer()
-    .notNull()
-    .references(() => formField.id),
+    .references(() => formField.id, { onDelete: "cascade" })
+    .notNull(),
   value: varchar({ length: 256 }).notNull(),
   label: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
 });
-
-export * from "./auth";
