@@ -1,29 +1,13 @@
-import { headers } from "next/headers";
-import Link from "next/link";
+import UserAvatar from "./avatar";
 
-import { Button } from "~/components/ui/button";
-import { auth } from "~/lib/auth";
-
-import Avatar from "./avatar";
-
-export default async function Navbar() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+export default async function FormNavbar() {
   return (
-    <nav className="flex justify-center py-2.5 border-b-2">
+    <nav className="flex justify-center border-b-2 py-2.5">
       <h1 className="text-2xl font-bold text-gray-800">
         CSE 412 Project - Forms
       </h1>
       <div className="ml-auto">
-        {session ? (
-          <Avatar />
-        ) : (
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-        )}
+        <UserAvatar />
       </div>
     </nav>
   );

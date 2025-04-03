@@ -7,6 +7,8 @@ import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Suspense } from "react";
+import FormList from "./form/form-list";
 
 export default async function Home() {
   const forms = await caller.form.getAllForms();
@@ -44,26 +46,9 @@ export default async function Home() {
         <div>
           <h1 className="mb-8 text-4xl font-bold">Posted Forms</h1>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {forms.map((form) => (
-              <Card
-                key={form.id}
-                className="bg-white shadow-sm transition-shadow hover:shadow-md"
-              >
-                <CardHeader>
-                  <CardTitle className="text-lg text-gray-800">
-                    {form.title}
-                  </CardTitle>
-                  {/* <CardDescription className="text-gray-600"> */}
-                  {/*   {form.responses} responses */}
-                  {/* </CardDescription> */}
-                </CardHeader>
-                <CardContent className="mt-auto">
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href={`/form/${form.id}`}>View Responses</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            <Suspense fallback="Loading...">
+              <FormList />
+            </Suspense>
           </div>
         </div>
       </main>

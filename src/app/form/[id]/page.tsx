@@ -8,9 +8,6 @@ import {
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { auth } from "~/lib/auth";
 import { caller } from "~/trpc/server";
 
 export default async function FormPage({
@@ -18,16 +15,9 @@ export default async function FormPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
   const formId = Number((await params).id);
   const form = await caller.form.getForm({ id: formId });
 
-  if (!session) {
-    redirect("/");
-  }
   if (!form) {
     return <div>Form not found!</div>;
   }

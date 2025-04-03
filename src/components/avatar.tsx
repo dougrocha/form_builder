@@ -2,10 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { authClient } from "~/auth-client";
-import {
-  Avatar as AvatarComponent,
-  AvatarFallback,
-} from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-export default function Avatar() {
+export default function UserAvatar() {
+  const { data: session } = authClient.useSession();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <AvatarComponent className="ml-auto">
+        <Avatar className="ml-auto">
           <AvatarFallback className="bg-secondary text-secondary-foreground">
-            CN
+            {session?.user.name[0]}
           </AvatarFallback>
-        </AvatarComponent>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>

@@ -1,24 +1,13 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import Navbar from "~/components/navbar";
-import { auth } from "~/lib/auth";
+import FormNavbar from "~/components/navbar";
 
 export default async function FormLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/");
-  }
-
   return (
-    <div className="container mx-auto min-h-screen bg-white p-4">
-      <Navbar />
+    <div>
+      <FormNavbar />
       <main>{children}</main>
     </div>
   );
