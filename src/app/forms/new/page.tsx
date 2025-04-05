@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { api, caller, prefetch } from "~/trpc/server";
+import { caller } from "~/trpc/server";
+import NewFormSubmitButton from "./new-form-submit-button";
 
 export default function NewForm() {
   const createForm = async (formData: FormData) => {
@@ -16,7 +16,7 @@ export default function NewForm() {
       return;
     }
 
-    redirect(`/form/${newForm.id}`);
+    redirect(`/forms/${newForm.id}`);
   };
 
   return (
@@ -31,7 +31,7 @@ export default function NewForm() {
           <label className="block text-gray-700">Description</label>
           <Input name="description" type="text" />
         </div>
-        <Button type="submit">Create Form</Button>
+        <NewFormSubmitButton />
       </form>
     </div>
   );

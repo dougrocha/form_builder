@@ -1,7 +1,11 @@
 "use client";
 
 import { createQueryClient } from "./query-client";
-import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  isServer,
+  type QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import {
   createTRPCClient,
   httpBatchStreamLink,
@@ -13,15 +17,19 @@ import { useState } from "react";
 import SuperJSON from "superjson";
 import { type AppRouter } from "~/server/api/root";
 
-let clientQueryClientSingleton: QueryClient | undefined = undefined;
-const getQueryClient = () => {
-  if (typeof window === "undefined") {
+let browserQueryClient: QueryClient | undefined = undefined;
+function getQueryClient() {
+  if (isServer) {
     // Server: always make a new query client
     return createQueryClient();
+  } else {
+    // Browser: make a new query client if we don't already have one
+    // This is very important, so we don't re-make a new client if React
+    // suspends during the initial render. This may not be needed if we
+    // have a suspense boundary BELOW the creation of the query client
+    return (browserQueryClient ??= createQueryClient());
   }
-  // Browser: use singleton pattern to keep the same query client
-  return (clientQueryClientSingleton ??= createQueryClient());
-};
+}
 
 export const { TRPCProvider, useTRPC, useTRPCClient } =
   createTRPCContext<AppRouter>();

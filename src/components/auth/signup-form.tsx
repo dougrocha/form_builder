@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { authClient } from "~/auth-client";
+import { authClient } from "~/lib/auth-client";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -16,27 +16,30 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-const LoginForm = () => {
+const SignUpForm = () => {
   const form = useForm({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
     validators: {
       onChange: z.object({
+        name: z.string().min(3),
         email: z.string().email(),
         password: z.string().min(6),
       }),
     },
     onSubmit: async ({ value }) => {
-      const { error } = await authClient.signIn.email({
+      const { error } = await authClient.signUp.email({
+        name: value.name,
         email: value.email,
         password: value.password,
       });
 
       if (error) {
-        console.error("Login failed:", error);
-        alert("Login failed. Please check your credentials and try again.");
+        console.error("SignUp failed:", error);
+        alert("SignUp failed. Please check your credentials and try again.");
       } else {
         redirect("/");
       }
@@ -46,17 +49,32 @@ const LoginForm = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Login to your existing account.</CardDescription>
+        <CardTitle>Signup</CardTitle>
+        <CardDescription>
+          Create a new account by filling out the form below.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
-          className="flex flex-col justify-center gap-4"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
           }}
         >
+          <form.Field name="name">
+            {(field) => (
+              <>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </>
+            )}
+          </form.Field>
           <form.Field name="email">
             {(field) => (
               <>
@@ -87,11 +105,11 @@ const LoginForm = () => {
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button className="cursor-pointer" onClick={() => form.handleSubmit()}>
-          Log in
+          Sign up
         </Button>
       </CardFooter>
     </Card>
   );
 };
 
-export default LoginForm;
+export default SignUpForm;

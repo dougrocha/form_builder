@@ -1,4 +1,3 @@
-import { user } from "./auth";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -7,8 +6,11 @@ import {
   pgTable,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+import { user } from "./auth";
 
 export const fieldType = pgEnum("field_type", [
   "text",
@@ -19,10 +21,9 @@ export const fieldType = pgEnum("field_type", [
 ]);
 
 export const form = pgTable("form", {
-  id: integer().primaryKey(),
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
   title: varchar({ length: 256 }).notNull(),
   description: varchar({ length: 1024 }),
-  responses: integer().default(0),
   published: boolean().default(false).notNull(),
   creator: text()
     .notNull()
@@ -31,6 +32,11 @@ export const form = pgTable("form", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+
+  responses: integer().default(0),
+  share_id: uuid()
+    .unique()
+    .default(sql`gen_random_uuid()`),
 });
 
 export const formRelations = relations(form, ({ many }) => ({
@@ -45,7 +51,7 @@ export const formField = pgTable("form_field", {
   label: varchar({ length: 256 }).notNull(),
   description: varchar({ length: 1024 }),
   position: integer().notNull(),
-  type: fieldType(),
+  type: fieldType().notNull(),
   required: boolean().default(false).notNull(),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

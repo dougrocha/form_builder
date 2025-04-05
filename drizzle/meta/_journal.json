@@ -15,6 +15,20 @@
       "when": 1743717453142,
       "tag": "0001_regular_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1743802063727,
+      "tag": "0002_crazy_jocasta",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1743803108436,
+      "tag": "0003_bright_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }

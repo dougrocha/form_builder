@@ -1,56 +1,84 @@
-import LoginForm from "../components/LoginForm";
-import SignUpForm from "../components/SignUpForm";
-import FormList from "./form/form-list";
+import { FileText } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { auth } from "~/lib/auth";
-import { HydrateClient, caller } from "~/trpc/server";
+import UserAvatar from "~/components/user-avatar";
+import { auth } from "~/server/auth";
+import { HydrateClient } from "~/trpc/server";
+import LoginForm from "../components/auth/login-form";
+import SignUpForm from "../components/auth/signup-form";
+import FormList from "./form-list";
+import { CreateNewFormButton } from "./forms/create-new-form-button";
 
 export default async function Home() {
-  const forms = await caller.form.getAllForms();
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   return (
     <HydrateClient>
-      <main className="container mx-auto flex min-h-screen flex-col gap-16 p-4">
-        {session ? (
+      <div className="container mx-auto px-4 py-8">
+        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          {session ? (
+            <>
+              <div className="flex items-center gap-4 md:items-baseline">
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight">
+                    Welcome back, {session.user.name}
+                  </h1>
+                  <p className="text-muted-foreground mt-1">
+                    Manage your forms and view responses
+                  </p>
+                </div>
+                <div className="ml-auto md:hidden">
+                  <UserAvatar />
+                </div>
+              </div>
+              <div className="flex gap-2 md:ml-auto">
+                <Button className="cursor-pointer" variant="outline" asChild>
+                  <Link href="/forms">
+                    <FileText className="mr-2 h-4 w-4" /> My Forms
+                  </Link>
+                </Button>
+                <CreateNewFormButton />
+              </div>
+              <div className="hidden md:block">
+                <UserAvatar />
+              </div>
+            </>
+          ) : (
+            <Tabs defaultValue="login" className="flex w-full justify-center">
+              <TabsList className="w-full">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login">
+                <LoginForm />
+              </TabsContent>
+              <TabsContent value="signup">
+                <SignUpForm />
+              </TabsContent>
+            </Tabs>
+          )}
+        </header>
+        <main>
           <div>
-            <h1 className="mb-4 text-2xl font-bold">
-              You are logged in! Hi {session.user.name}
-            </h1>
-            <Button>
-              <Link href="/form">See your forms</Link>
-            </Button>
+            <h2 className="mb-8 text-2xl font-semibold">
+              Recently Posted Forms
+            </h2>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <ErrorBoundary fallback="Something went wrong">
+                <Suspense fallback="Loading...">
+                  <FormList />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
           </div>
-        ) : (
-          <Tabs defaultValue="login" className="flex w-full justify-center">
-            <TabsList className="w-full">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <LoginForm />
-            </TabsContent>
-            <TabsContent value="signup">
-              <SignUpForm />
-            </TabsContent>
-          </Tabs>
-        )}
-        <div>
-          <h1 className="mb-8 text-4xl font-bold">Posted Forms</h1>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Suspense fallback="Loading...">
-              <FormList />
-            </Suspense>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </HydrateClient>
   );
 }

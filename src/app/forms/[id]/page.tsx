@@ -1,14 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { caller } from "~/trpc/server";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { caller as api } from "~/trpc/server";
 
 export default async function FormPage({
   params,
@@ -16,7 +7,7 @@ export default async function FormPage({
   params: Promise<{ id: string }>;
 }) {
   const formId = Number((await params).id);
-  const form = await caller.form.getForm({ id: formId });
+  const form = await api.form.getForm({ id: formId });
 
   if (!form) {
     return <div>Form not found!</div>;
@@ -32,14 +23,6 @@ export default async function FormPage({
           <p>{form.description}</p>
           {/* Add more form details here */}
         </CardContent>
-        <CardFooter>
-          <Button variant="outline" asChild>
-            <Link href="/">
-              <ArrowLeft />
-              Go Back
-            </Link>
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );
