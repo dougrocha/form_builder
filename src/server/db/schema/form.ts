@@ -14,9 +14,11 @@ import { user } from "./auth";
 
 export const fieldType = pgEnum("field_type", [
   "text",
+  "textarea",
   "number",
-  "boolean",
-  "multiselect",
+  "email",
+  "phone",
+  "checkbox",
   "radio",
 ]);
 

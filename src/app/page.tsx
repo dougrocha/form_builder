@@ -7,7 +7,6 @@ import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import UserAvatar from "~/components/user-avatar";
 import { auth } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
 import LoginForm from "../components/auth/login-form";
 import SignUpForm from "../components/auth/signup-form";
 import FormList from "./form-list";
@@ -19,7 +18,7 @@ export default async function Home() {
   });
 
   return (
-    <HydrateClient>
+    <>
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {session ? (
@@ -79,6 +78,6 @@ export default async function Home() {
           </div>
         </main>
       </div>
-    </HydrateClient>
+    </>
   );
 }
