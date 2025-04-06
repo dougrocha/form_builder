@@ -28,7 +28,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
-import { FieldType } from "~/server/db/schema";
+import type { FieldType } from "~/server/db/schema";
 import { useFormEditorStore } from "./store";
 
 const fieldTypes: {
@@ -78,6 +78,7 @@ export default function EditorSidebar() {
                         type: fieldType.id,
                         label: fieldType.name,
                         options: [],
+                        position: formFields.length,
                       });
                     }}
                   >
