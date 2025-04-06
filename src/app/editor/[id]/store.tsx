@@ -4,73 +4,37 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
-import { form, formField, formFieldOption } from "~/server/db/schema";
+import type {
+  Form,
+  FormField,
+  FormFieldInsert,
+  FormFieldOptionInsert,
+} from "~/server/db/schema";
 import { useTRPC } from "~/trpc/react";
 
-export const FormEditorContext = createContext<FormEditorState | null>(null);
-
-export const FormEditorProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const params = useParams<{ id: string }>();
-  const id = Number(params.id);
-
-  const trpc = useTRPC();
-
-  const { data: form } = useSuspenseQuery(
-    trpc.form.getForm.queryOptions({ id }),
-  );
-
-  const store = useRef(createFormEditorState(form!));
-
-  if (store.current === null) {
-    store.current = createFormEditorState(form!);
-  }
-
-  return (
-    <FormEditorContext.Provider value={store.current}>
-      {children}
-    </FormEditorContext.Provider>
-  );
+type FormFieldWithOptions = Omit<FormFieldInsert, "formId"> & {
+  options?: Omit<FormFieldOptionInsert, "formFieldId">[];
 };
-
-export const useFormEditorStore = <T,>(
-  selector: (store: FormEditorStore) => T,
-): T => {
-  const context = useContext(FormEditorContext);
-  if (!context)
-    throw new Error("Missing FormEditorContext.Provider in the tree");
-
-  return useStore(context, selector);
-};
-
-type FormFieldOptionInsert = typeof formFieldOption.$inferInsert;
-type FormFieldInsert = typeof formField.$inferInsert & {
-  options: FormFieldOptionInsert[];
-};
-
-type Form = typeof form.$inferSelect;
 
 type State = {
   form: Form;
-  formFields: FormFieldInsert[];
+  formFields: FormFieldWithOptions[];
   selectedFieldId?: number;
 };
 
 type Action = {
   setSelectedFieldId: (fieldId?: number) => void;
   updateForm: (form: Partial<Form>) => void;
-  addField: (field: FormFieldInsert) => void;
-  updateField: (fieldId: number, field: Partial<FormFieldInsert>) => void;
+  addField: (field: FormFieldWithOptions) => void;
+  updateField: (fieldId: number, field: Partial<FormField>) => void;
   moveField: (from: number, to: number) => void;
+  removeField: (fieldId: number) => void;
 };
 
 type FormEditorStore = State & Action;
-type FormEditorState = ReturnType<typeof createFormEditorState>;
+type FormEditorState = ReturnType<typeof createFormEditorStore>;
 
-export const createFormEditorState = (form: Form) => {
+export const createFormEditorStore = (form: Form) => {
   return createStore<State & Action>()((set) => ({
     form,
     formFields: [],
@@ -80,11 +44,11 @@ export const createFormEditorState = (form: Form) => {
       set(() => ({ selectedFieldId: fieldId })),
     updateForm: (form: Partial<Form>) =>
       set((state) => ({ form: { ...state.form, ...form } })),
-    addField: (field: FormFieldInsert) =>
+    addField: (field: FormFieldWithOptions) =>
       set((state) => ({
         formFields: [...state.formFields, field],
       })),
-    updateField: (fieldId: number, field: Partial<FormFieldInsert>) =>
+    updateField: (fieldId: number, field: Partial<FormFieldWithOptions>) =>
       set((state) => ({
         formFields: state.formFields.map((f) =>
           f.id === fieldId ? { ...f, ...field } : f,
@@ -109,4 +73,41 @@ export const createFormEditorState = (form: Form) => {
           state.selectedFieldId === fieldId ? undefined : state.selectedFieldId,
       })),
   }));
+};
+
+export const FormEditorContext = createContext<FormEditorState | null>(null);
+
+export const useFormEditorStore = <T,>(
+  selector: (store: FormEditorStore) => T,
+): T => {
+  const context = useContext(FormEditorContext);
+  if (!context)
+    throw new Error("Missing FormEditorContext.Provider in the tree");
+
+  return useStore(context, selector);
+};
+
+export const FormEditorProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const params = useParams<{ id: string }>();
+  const id = Number(params.id);
+
+  const trpc = useTRPC();
+
+  const { data: form } = useSuspenseQuery(
+    trpc.form.getForm.queryOptions({ id }),
+  );
+
+  const store = useRef(createFormEditorStore(form!));
+
+  store.current ??= createFormEditorStore(form!);
+
+  return (
+    <FormEditorContext.Provider value={store.current}>
+      {children}
+    </FormEditorContext.Provider>
+  );
 };

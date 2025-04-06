@@ -39,7 +39,7 @@ export default async function UserFormList() {
                 <Link href={`/forms/${form.id}`}>View Responses</Link>
               </Button>
               <Button variant="secondary" size="sm" asChild>
-                <Link href={`/forms/${form.id}/edit`}>Edit</Link>
+                <Link href={`/editor/${form.id}`}>Edit</Link>
               </Button>
             </CardContent>
           </Card>

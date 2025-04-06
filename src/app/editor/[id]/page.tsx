@@ -1,11 +1,11 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SidebarProvider } from "~/components/ui/sidebar";
 import { auth } from "~/server/auth";
 import { caller, HydrateClient } from "~/trpc/server";
-import { SidebarProvider } from "~/components/ui/sidebar";
 import EditorSidebar from "./editor-sidebar";
-import { useRef } from "react";
-import { createFormEditorState, FormEditorProvider } from "./store";
+import { FormEditorProvider } from "./store";
+import EditorPreview from "./editor-preview";
 
 export default async function EditorPage({
   params,
@@ -35,7 +35,7 @@ export default async function EditorPage({
     <HydrateClient>
       <FormEditorProvider>
         <SidebarProvider>
-          Hello
+          <EditorPreview />
           <EditorSidebar />
           {/* <Card> */}
           {/*   <CardHeader> */}

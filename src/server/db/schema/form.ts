@@ -74,3 +74,13 @@ export const formFieldOption = pgTable("form_field_option", {
   label: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
 });
+
+export type Form = typeof form.$inferSelect;
+export type FormField = typeof formField.$inferSelect;
+export type FormFieldOption = typeof formFieldOption.$inferSelect;
+
+export type FormInsert = typeof form.$inferInsert;
+export type FormFieldInsert = typeof formField.$inferInsert;
+export type FormFieldOptionInsert = typeof formFieldOption.$inferInsert;
+
+export type FieldType = (typeof fieldType.enumValues)[number];

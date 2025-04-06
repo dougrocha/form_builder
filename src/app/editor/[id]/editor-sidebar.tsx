@@ -2,20 +2,18 @@
 
 import { generateId } from "better-auth";
 import {
-  Calendar,
   CheckSquare,
-  ChevronDown,
   FileText,
   Hash,
   List,
   Mail,
   Phone,
-  Image,
   Plus,
   Trash2,
   Type,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
@@ -30,10 +28,14 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
+import { FieldType } from "~/server/db/schema";
 import { useFormEditorStore } from "./store";
-import { Checkbox } from "~/components/ui/checkbox";
 
-const fieldTypes = [
+const fieldTypes: {
+  id: FieldType;
+  name: string;
+  icon: React.ForwardRefExoticComponent<any>;
+}[] = [
   { id: "text", name: "Text Field", icon: Type },
   { id: "textarea", name: "Text Area", icon: FileText },
   { id: "number", name: "Number", icon: Hash },
@@ -41,14 +43,15 @@ const fieldTypes = [
   { id: "phone", name: "Phone", icon: Phone },
   { id: "checkbox", name: "Checkbox", icon: CheckSquare },
   { id: "radio", name: "Radio Group", icon: List },
-  { id: "select", name: "Dropdown", icon: ChevronDown },
-  { id: "date", name: "Date Picker", icon: Calendar },
-  { id: "image", name: "Image Upload", icon: Image },
+  // { id: "select", name: "Dropdown", icon: ChevronDown },
+  // { id: "date", name: "Date Picker", icon: Calendar },
+  // { id: "image", name: "Image Upload", icon: Image },
 ];
 
 export default function EditorSidebar() {
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
   const formFields = useFormEditorStore((s) => s.formFields);
+  const addField = useFormEditorStore((s) => s.addField);
 
   const selectedField = formFields.find(
     (field) => field.id === selectedFieldId,
@@ -69,7 +72,14 @@ export default function EditorSidebar() {
               {fieldTypes.map((fieldType) => (
                 <SidebarMenuItem key={fieldType.id}>
                   <SidebarMenuButton
-                  // onClick={() => store.addField(fieldType.id)}
+                    onClick={() => {
+                      addField({
+                        id: formFields.length + 1,
+                        type: fieldType.id,
+                        label: fieldType.name,
+                        options: [],
+                      });
+                    }}
                   >
                     <fieldType.icon className="h-4 w-4" />
                     <span>{fieldType.name}</span>
@@ -116,7 +126,7 @@ export default function EditorSidebar() {
                   <div>
                     <Label className="mb-2 block">Options</Label>
                     <div className="space-y-2">
-                      {selectedField.options.map(
+                      {selectedField.options?.map(
                         (option: any, index: number) => (
                           <div
                             key={option.id}
@@ -125,11 +135,11 @@ export default function EditorSidebar() {
                             <Input
                               value={option.value}
                               onChange={(e) => {
-                                const newOptions = [...selectedField.options];
-                                newOptions[index] = {
-                                  ...option,
-                                  value: e.target.value,
-                                };
+                                // const newOptions = [...selectedField.options];
+                                // newOptions[index] = {
+                                //   ...option,
+                                //   value: e.target.value,
+                                // };
                                 // store.updateField(selectedField.id, {
                                 //   options: newOptions,
                                 // });
@@ -140,14 +150,14 @@ export default function EditorSidebar() {
                               size="icon"
                               className="text-destructive hover:text-destructive h-8 w-8"
                               onClick={() => {
-                                const newOptions = selectedField.options.filter(
-                                  (o: any) => o.id !== option.id,
-                                );
+                                // const newOptions = selectedField.options.filter(
+                                //   (o: any) => o.id !== option.id,
+                                // );
                                 // store.updateField(selectedField.id, {
                                 //   options: newOptions,
                                 // });
                               }}
-                              disabled={selectedField.options.length <= 1}
+                              // disabled={selectedField.options.length <= 1}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -159,13 +169,13 @@ export default function EditorSidebar() {
                         size="sm"
                         className="w-full"
                         onClick={() => {
-                          const newOptions = [
-                            ...selectedField.options,
-                            {
-                              id: generateId(),
-                              value: `Option ${selectedField.options.length + 1}`,
-                            },
-                          ];
+                          // const newOptions = [
+                          //   ...selectedField.options,
+                          //   {
+                          //     id: generateId(),
+                          //     value: `Option ${selectedField.options.length + 1}`,
+                          //   },
+                          // ];
                           // store.updateField(selectedField.id!, {
                           //   options: newOptions,
                           // });
