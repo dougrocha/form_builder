@@ -37,26 +37,6 @@ export default async function EditorPage({
         <SidebarProvider>
           <EditorPreview />
           <EditorSidebar />
-          {/* <Card> */}
-          {/*   <CardHeader> */}
-          {/*     <CardTitle className="text-lg text-gray-800"> */}
-          {/*       {form.title} */}
-          {/*     </CardTitle> */}
-          {/*   </CardHeader> */}
-          {/*   <CardContent> */}
-          {/*     <> */}
-          {/*       <p>{form.description}</p> */}
-          {/*       <p>Number of Responses: {form.responses}</p> */}
-          {/*       <p>Status: {form.published ? "Published" : "Draft"}</p> */}
-          {/*       <p>Created at: {form.createdAt.toLocaleDateString()}</p> */}
-          {/*       <p> */}
-          {/*         Last updated:{" "} */}
-          {/*         {form.updatedAt ? form.updatedAt.toLocaleDateString() : "Never"} */}
-          {/*       </p> */}
-          {/*     </> */}
-          {/*   </CardContent> */}
-          {/* </Card> */}
-          {/* <FormBuilder /> */}
         </SidebarProvider>
       </FormEditorProvider>
     </HydrateClient>
