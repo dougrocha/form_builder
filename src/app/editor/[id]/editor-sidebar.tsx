@@ -1,6 +1,5 @@
 "use client";
 
-import { generateId } from "better-auth";
 import {
   CheckSquare,
   FileText,
@@ -11,6 +10,7 @@ import {
   Plus,
   Trash2,
   Type,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -31,10 +31,13 @@ import {
 import type { FieldType } from "~/server/db/schema";
 import { useFormEditorStore } from "./store";
 
+export const generateId = (prefix: string) =>
+  `${prefix}_${Math.random().toString(36).substring(2, 9)}`;
+
 const fieldTypes: {
   id: FieldType;
   name: string;
-  icon: React.ForwardRefExoticComponent<any>;
+  icon: LucideIcon;
 }[] = [
   { id: "text", name: "Text Field", icon: Type },
   { id: "textarea", name: "Text Area", icon: FileText },
@@ -43,15 +46,20 @@ const fieldTypes: {
   { id: "phone", name: "Phone", icon: Phone },
   { id: "checkbox", name: "Checkbox", icon: CheckSquare },
   { id: "radio", name: "Radio Group", icon: List },
-  // { id: "select", name: "Dropdown", icon: ChevronDown },
-  // { id: "date", name: "Date Picker", icon: Calendar },
-  // { id: "image", name: "Image Upload", icon: Image },
 ];
 
 export default function EditorSidebar() {
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
   const formFields = useFormEditorStore((s) => s.formFields);
   const addField = useFormEditorStore((s) => s.addField);
+  const updateField = useFormEditorStore((s) => s.updateField);
+  const updateFormFieldOption = useFormEditorStore(
+    (s) => s.updateFormFieldOption,
+  );
+  const addFormFieldOption = useFormEditorStore((s) => s.addFormFieldOption);
+  const removeFormFieldOption = useFormEditorStore(
+    (s) => s.removeFormFieldOption,
+  );
 
   const selectedField = formFields.find(
     (field) => field.id === selectedFieldId,
@@ -74,11 +82,11 @@ export default function EditorSidebar() {
                   <SidebarMenuButton
                     onClick={() => {
                       addField({
-                        id: formFields.length + 1,
+                        id: generateId("field"),
                         type: fieldType.id,
                         label: fieldType.name,
-                        options: [],
                         position: formFields.length,
+                        options: [],
                       });
                     }}
                   >
@@ -95,17 +103,19 @@ export default function EditorSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Field Properties</SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="space-y-4 p-2">
+              <div className="space-y-6 p-2">
                 <div>
-                  <Label htmlFor="field-label">Label</Label>
+                  <Label className="mb-2 block" htmlFor="field-label">
+                    Label
+                  </Label>
                   <Input
                     id="field-label"
                     value={selectedField.label}
-                    // onChange={(e) =>
-                    // store.updateField(selectedField.id, {
-                    //   label: e.target.value,
-                    // })
-                    // }
+                    onChange={(e) =>
+                      updateField(selectedField.id, {
+                        label: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -113,11 +123,11 @@ export default function EditorSidebar() {
                   <Checkbox
                     id="field-required"
                     checked={selectedField.required}
-                    // onCheckedChange={(checked) =>
-                    // store.updateField(selectedField.id, {
-                    //   required: !!checked,
-                    // })
-                    //}
+                    onCheckedChange={(checked) =>
+                      updateField(selectedField.id, {
+                        required: !!checked,
+                      })
+                    }
                   />
                   <Label htmlFor="field-required">Required field</Label>
                 </div>
@@ -127,59 +137,52 @@ export default function EditorSidebar() {
                   <div>
                     <Label className="mb-2 block">Options</Label>
                     <div className="space-y-2">
-                      {selectedField.options?.map(
-                        (option: any, index: number) => (
-                          <div
-                            key={option.id}
-                            className="flex items-center gap-2"
+                      {selectedField.options?.map((option) => (
+                        <div
+                          key={option.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Input
+                            value={option.label}
+                            onChange={(e) => {
+                              updateFormFieldOption(
+                                selectedField.id,
+                                option.id,
+                                {
+                                  label: e.target.value,
+                                },
+                              );
+                            }}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive h-8 w-8"
+                            onClick={() => {
+                              removeFormFieldOption(
+                                selectedField.id,
+                                option.id,
+                              );
+                            }}
+                            disabled={
+                              selectedField.options &&
+                              selectedField.options.length <= 1
+                            }
                           >
-                            <Input
-                              value={option.value}
-                              onChange={(e) => {
-                                // const newOptions = [...selectedField.options];
-                                // newOptions[index] = {
-                                //   ...option,
-                                //   value: e.target.value,
-                                // };
-                                // store.updateField(selectedField.id, {
-                                //   options: newOptions,
-                                // });
-                              }}
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive h-8 w-8"
-                              onClick={() => {
-                                // const newOptions = selectedField.options.filter(
-                                //   (o: any) => o.id !== option.id,
-                                // );
-                                // store.updateField(selectedField.id, {
-                                //   options: newOptions,
-                                // });
-                              }}
-                              // disabled={selectedField.options.length <= 1}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ),
-                      )}
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
                       <Button
                         variant="outline"
                         size="sm"
                         className="w-full"
                         onClick={() => {
-                          // const newOptions = [
-                          //   ...selectedField.options,
-                          //   {
-                          //     id: generateId(),
-                          //     value: `Option ${selectedField.options.length + 1}`,
-                          //   },
-                          // ];
-                          // store.updateField(selectedField.id!, {
-                          //   options: newOptions,
-                          // });
+                          addFormFieldOption(selectedField.id, {
+                            id: generateId("field_option"),
+                            label: `Option ${(selectedField.options ?? []).length + 1}`,
+                            position: (selectedField.options ?? []).length,
+                          });
                         }}
                       >
                         <Plus className="mr-2 h-4 w-4" />

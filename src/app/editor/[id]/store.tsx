@@ -4,31 +4,45 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
-import type {
-  Form,
-  FormField,
-  FormFieldInsert,
-  FormFieldOptionInsert,
-} from "~/server/db/schema";
+import type { FieldType, Form } from "~/server/db/schema";
 import { useTRPC } from "~/trpc/react";
 
-type FormFieldWithOptions = Omit<FormFieldInsert, "formId"> & {
-  options?: Omit<FormFieldOptionInsert, "formFieldId">[];
+type EditorFormField = {
+  id: string;
+  type: FieldType;
+  label: string;
+  description?: string;
+  position: number;
+  required?: boolean;
+  options?: EditorFormFieldOption[];
+};
+
+type EditorFormFieldOption = {
+  id: string;
+  label: string;
+  position: number;
 };
 
 type State = {
   form: Form;
-  formFields: FormFieldWithOptions[];
-  selectedFieldId?: number;
+  formFields: EditorFormField[];
+  selectedFieldId?: string;
 };
 
 type Action = {
-  setSelectedFieldId: (fieldId?: number) => void;
+  setSelectedFieldId: (fieldId?: string) => void;
   updateForm: (form: Partial<Form>) => void;
-  addField: (field: FormFieldWithOptions) => void;
-  updateField: (fieldId: number, field: Partial<FormField>) => void;
+  addField: (field: EditorFormField) => void;
+  updateField: (fieldId: string, field: Partial<EditorFormField>) => void;
   moveField: (from: number, to: number) => void;
-  removeField: (fieldId: number) => void;
+  removeField: (fieldId: string) => void;
+  addFormFieldOption: (fieldId: string, option: EditorFormFieldOption) => void;
+  updateFormFieldOption: (
+    fieldId: string,
+    optionId: string,
+    option: Partial<EditorFormFieldOption>,
+  ) => void;
+  removeFormFieldOption: (fieldId: string, optionId: string) => void;
 };
 
 type FormEditorStore = State & Action;
@@ -40,15 +54,15 @@ export const createFormEditorStore = (form: Form) => {
     formFields: [],
     selectedFieldId: undefined,
 
-    setSelectedFieldId: (fieldId?: number) =>
+    setSelectedFieldId: (fieldId?: string) =>
       set(() => ({ selectedFieldId: fieldId })),
     updateForm: (form: Partial<Form>) =>
       set((state) => ({ form: { ...state.form, ...form } })),
-    addField: (field: FormFieldWithOptions) =>
+    addField: (field: EditorFormField) =>
       set((state) => ({
         formFields: [...state.formFields, field],
       })),
-    updateField: (fieldId: number, field: Partial<FormFieldWithOptions>) =>
+    updateField: (fieldId: string, field: Partial<EditorFormField>) =>
       set((state) => ({
         formFields: state.formFields.map((f) =>
           f.id === fieldId ? { ...f, ...field } : f,
@@ -66,11 +80,50 @@ export const createFormEditorStore = (form: Form) => {
           formFields: newFields,
         };
       }),
-    removeField: (fieldId: number) =>
+    removeField: (fieldId: string) =>
       set((state) => ({
         formFields: state.formFields.filter((f) => f.id !== fieldId),
         selectedFieldId:
           state.selectedFieldId === fieldId ? undefined : state.selectedFieldId,
+      })),
+    addFormFieldOption: (fieldId: string, option: EditorFormFieldOption) =>
+      set((state) => ({
+        formFields: state.formFields.map((field) =>
+          field.id === fieldId
+            ? {
+                ...field,
+                options: [...(field.options ?? []), option],
+              }
+            : field,
+        ),
+      })),
+    updateFormFieldOption: (
+      fieldId: string,
+      optionId: string,
+      option: Partial<EditorFormFieldOption>,
+    ) =>
+      set((state) => ({
+        formFields: state.formFields.map((field) =>
+          field.id === fieldId
+            ? {
+                ...field,
+                options: field.options?.map((opt) =>
+                  opt.id === optionId ? { ...opt, ...option } : opt,
+                ),
+              }
+            : field,
+        ),
+      })),
+    removeFormFieldOption: (fieldId: string, optionId: string) =>
+      set((state) => ({
+        formFields: state.formFields.map((field) =>
+          field.id === fieldId
+            ? {
+                ...field,
+                options: field.options?.filter((opt) => opt.id !== optionId),
+              }
+            : field,
+        ),
       })),
   }));
 };

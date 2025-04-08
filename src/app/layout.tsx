@@ -21,10 +21,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body className="overscroll-none">
-        <div className="flex h-screen w-full grow flex-col">
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </div>
+      <body className="flex h-screen w-full grow flex-col overscroll-none">
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );

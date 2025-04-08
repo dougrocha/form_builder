@@ -1,13 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { caller as api } from "~/trpc/server";
+import { caller } from "~/trpc/server";
 
 export default async function FormPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }) {
   const formId = Number((await params).id);
-  const form = await api.form.getForm({ id: formId });
+  const form = await caller.form.getForm({ id: formId });
 
   if (!form) {
     return <div>Form not found!</div>;

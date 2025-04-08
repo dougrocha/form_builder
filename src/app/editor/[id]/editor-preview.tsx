@@ -1,29 +1,28 @@
 "use client";
 
-import { FileText, ChevronDown, Trash2, GripVertical } from "lucide-react";
+import { ChevronDown, FileText, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from "~/components/ui/card";
+import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Separator } from "~/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
 import { Textarea } from "~/components/ui/textarea";
 import { useFormEditorStore } from "./store";
-import { Label } from "~/components/ui/label";
-import { Checkbox } from "~/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 export default function EditorPreview() {
   const form = useFormEditorStore((s) => s.form);
   const formFields = useFormEditorStore((s) => s.formFields);
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
-
   const updateForm = useFormEditorStore((s) => s.updateForm);
   const setSelectedFieldId = useFormEditorStore((s) => s.setSelectedFieldId);
   const moveField = useFormEditorStore((s) => s.moveField);
@@ -44,7 +43,7 @@ export default function EditorPreview() {
         <Button>Preview</Button>
         <Button variant="default">Save</Button>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex flex-1 flex-col gap-4 overflow-auto p-4">
         <Card className="mx-auto w-full max-w-3xl">
           <CardHeader>
             <CardTitle>
@@ -103,18 +102,18 @@ export default function EditorPreview() {
                       className="text-destructive hover:text-destructive h-8 w-8"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeField(field.id!);
+                        removeField(field.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 cursor-grab"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </Button>
+                    {/* <Button */}
+                    {/*   variant="ghost" */}
+                    {/*   size="icon" */}
+                    {/*   className="h-8 w-8 cursor-grab" */}
+                    {/* > */}
+                    {/*   <GripVertical className="h-4 w-4" /> */}
+                    {/* </Button> */}
                   </div>
 
                   <div className="mb-4">
@@ -146,13 +145,13 @@ export default function EditorPreview() {
 
                   {field.type === "checkbox" && (
                     <div className="space-y-2">
-                      {field.options?.map((option: any) => (
+                      {field.options?.map((option) => (
                         <div
                           key={option.id}
                           className="flex items-center space-x-2"
                         >
                           <Checkbox id={option.id} />
-                          <Label htmlFor={option.id}>{option.value}</Label>
+                          <Label htmlFor={option.id}>{option.label}</Label>
                         </div>
                       ))}
                     </div>
@@ -160,13 +159,13 @@ export default function EditorPreview() {
 
                   {field.type === "radio" && (
                     <RadioGroup>
-                      {field.options?.map((option: any) => (
+                      {field.options?.map((option) => (
                         <div
                           key={option.id}
                           className="flex items-center space-x-2"
                         >
                           <RadioGroupItem value={option.id} id={option.id} />
-                          <Label htmlFor={option.id}>{option.value}</Label>
+                          <Label htmlFor={option.id}>{option.label}</Label>
                         </div>
                       ))}
                     </RadioGroup>
