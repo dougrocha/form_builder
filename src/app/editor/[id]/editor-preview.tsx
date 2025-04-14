@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, FileText, Trash2 } from "lucide-react";
+import { ChevronDown, FileText, Loader, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -17,22 +17,27 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Separator } from "~/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
 import { Textarea } from "~/components/ui/textarea";
+import { useTRPC } from "~/trpc/react";
 import { useFormEditorStore } from "./store";
+import { useMutation } from "@tanstack/react-query";
 
 export default function EditorPreview() {
   const form = useFormEditorStore((s) => s.form);
-  const formFields = useFormEditorStore((s) => s.formFields);
+  const formFields = useFormEditorStore((s) => s.fields);
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
   const updateForm = useFormEditorStore((s) => s.updateForm);
   const setSelectedFieldId = useFormEditorStore((s) => s.setSelectedFieldId);
   const moveField = useFormEditorStore((s) => s.moveField);
   const removeField = useFormEditorStore((s) => s.removeField);
 
+  const trpc = useTRPC();
+  const updateFormMutation = useMutation(
+    trpc.form.updateForm.mutationOptions(),
+  );
+
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1">
           <Input
             value={form.title}
@@ -40,8 +45,30 @@ export default function EditorPreview() {
             className="h-9 border-none px-0 text-lg font-semibold focus-visible:ring-0"
           />
         </div>
-        <Button>Preview</Button>
-        <Button variant="default">Save</Button>
+        <Button
+          className="cursor-pointer"
+          variant="default"
+          onClick={() => {
+            const formData = {
+              id: form.id,
+              title: form.title,
+              description: form.description,
+              fields: formFields,
+            };
+            updateFormMutation.mutate(formData);
+          }}
+        >
+          {updateFormMutation.isPending ? (
+            <>
+              <Loader className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save"
+          )}
+        </Button>
+        <Separator orientation="vertical" className="ml-2 h-4" />
+        <SidebarTrigger className="-mr-1 rotate-180 cursor-pointer" />
       </header>
       <div className="flex flex-1 flex-col gap-4 overflow-auto p-4">
         <Card className="mx-auto w-full max-w-3xl">
@@ -107,13 +134,6 @@ export default function EditorPreview() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    {/* <Button */}
-                    {/*   variant="ghost" */}
-                    {/*   size="icon" */}
-                    {/*   className="h-8 w-8 cursor-grab" */}
-                    {/* > */}
-                    {/*   <GripVertical className="h-4 w-4" /> */}
-                    {/* </Button> */}
                   </div>
 
                   <div className="mb-4">
@@ -151,7 +171,7 @@ export default function EditorPreview() {
                           className="flex items-center space-x-2"
                         >
                           <Checkbox id={option.id} />
-                          <Label htmlFor={option.id}>{option.label}</Label>
+                          <Label htmlFor={option.id}>{option.value}</Label>
                         </div>
                       ))}
                     </div>
@@ -165,7 +185,7 @@ export default function EditorPreview() {
                           className="flex items-center space-x-2"
                         >
                           <RadioGroupItem value={option.id} id={option.id} />
-                          <Label htmlFor={option.id}>{option.label}</Label>
+                          <Label htmlFor={option.id}>{option.value}</Label>
                         </div>
                       ))}
                     </RadioGroup>

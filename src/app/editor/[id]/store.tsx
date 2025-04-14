@@ -4,7 +4,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
-import type { FieldType, Form } from "~/server/db/schema";
+import type {
+  FieldType,
+  Form,
+  FormFieldWithOptions,
+  FormWithFields,
+} from "~/server/db/schema";
 import { useTRPC } from "~/trpc/react";
 
 type EditorFormField = {
@@ -19,13 +24,13 @@ type EditorFormField = {
 
 type EditorFormFieldOption = {
   id: string;
-  label: string;
+  value: string;
   position: number;
 };
 
 type State = {
   form: Form;
-  formFields: EditorFormField[];
+  fields: EditorFormField[];
   selectedFieldId?: string;
 };
 
@@ -48,10 +53,26 @@ type Action = {
 type FormEditorStore = State & Action;
 type FormEditorState = ReturnType<typeof createFormEditorStore>;
 
-export const createFormEditorStore = (form: Form) => {
+function transformFormField(field: FormFieldWithOptions): EditorFormField {
+  return {
+    id: String(field.id),
+    type: field.type,
+    label: field.label,
+    description: field.description ?? undefined,
+    position: field.position,
+    required: field.required,
+    options: field.options?.map((option) => ({
+      id: String(option.id),
+      value: option.value,
+      position: option.position,
+    })),
+  };
+}
+
+export const createFormEditorStore = (form: FormWithFields) => {
   return createStore<State & Action>()((set) => ({
     form,
-    formFields: [],
+    fields: form.fields.map(transformFormField),
     selectedFieldId: undefined,
 
     setSelectedFieldId: (fieldId?: string) =>
@@ -60,35 +81,35 @@ export const createFormEditorStore = (form: Form) => {
       set((state) => ({ form: { ...state.form, ...form } })),
     addField: (field: EditorFormField) =>
       set((state) => ({
-        formFields: [...state.formFields, field],
+        fields: [...state.fields, field],
       })),
     updateField: (fieldId: string, field: Partial<EditorFormField>) =>
       set((state) => ({
-        formFields: state.formFields.map((f) =>
+        fields: state.fields.map((f) =>
           f.id === fieldId ? { ...f, ...field } : f,
         ),
       })),
     moveField: (from: number, to: number) =>
       set((state) => {
-        if (to < 0 || to >= state.formFields.length) return state;
+        if (to < 0 || to >= state.fields.length) return state;
 
-        const newFields = [...state.formFields];
+        const newFields = [...state.fields];
         const movedField = newFields.splice(from, 1);
         newFields.splice(to, 0, ...movedField);
 
         return {
-          formFields: newFields,
+          fields: newFields,
         };
       }),
     removeField: (fieldId: string) =>
       set((state) => ({
-        formFields: state.formFields.filter((f) => f.id !== fieldId),
+        fields: state.fields.filter((f) => f.id !== fieldId),
         selectedFieldId:
           state.selectedFieldId === fieldId ? undefined : state.selectedFieldId,
       })),
     addFormFieldOption: (fieldId: string, option: EditorFormFieldOption) =>
       set((state) => ({
-        formFields: state.formFields.map((field) =>
+        fields: state.fields.map((field) =>
           field.id === fieldId
             ? {
                 ...field,
@@ -103,7 +124,7 @@ export const createFormEditorStore = (form: Form) => {
       option: Partial<EditorFormFieldOption>,
     ) =>
       set((state) => ({
-        formFields: state.formFields.map((field) =>
+        fields: state.fields.map((field) =>
           field.id === fieldId
             ? {
                 ...field,
@@ -116,7 +137,7 @@ export const createFormEditorStore = (form: Form) => {
       })),
     removeFormFieldOption: (fieldId: string, optionId: string) =>
       set((state) => ({
-        formFields: state.formFields.map((field) =>
+        fields: state.fields.map((field) =>
           field.id === fieldId
             ? {
                 ...field,
