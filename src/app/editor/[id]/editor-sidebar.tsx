@@ -1,24 +1,41 @@
 "use client";
 
 import {
+  BadgeCheck,
+  Bell,
   CheckSquare,
+  ChevronsUpDown,
+  CreditCard,
   FileText,
   Hash,
   List,
+  LogOut,
   Mail,
   Phone,
   Plus,
+  Sparkles,
   Trash2,
   Type,
   type LucideIcon,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -27,9 +44,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "~/components/ui/sidebar";
-import type { FieldType } from "~/server/db/schema";
+import { authClient } from "~/lib/auth-client";
+import { user, type FieldType } from "~/server/db/schema";
 import { useFormEditorStore } from "./store";
+import { redirect } from "next/navigation";
 
 export const generateId = (prefix: string) =>
   `${prefix}_${Math.random().toString(36).substring(2, 9)}`;
@@ -50,7 +70,7 @@ const fieldTypes: {
 
 export default function EditorSidebar() {
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
-  const formFields = useFormEditorStore((s) => s.formFields);
+  const formFields = useFormEditorStore((s) => s.fields);
   const addField = useFormEditorStore((s) => s.addField);
   const updateField = useFormEditorStore((s) => s.updateField);
   const updateFormFieldOption = useFormEditorStore(
@@ -143,13 +163,13 @@ export default function EditorSidebar() {
                           className="flex items-center gap-2"
                         >
                           <Input
-                            value={option.label}
+                            value={option.value}
                             onChange={(e) => {
                               updateFormFieldOption(
                                 selectedField.id,
                                 option.id,
                                 {
-                                  label: e.target.value,
+                                  value: e.target.value,
                                 },
                               );
                             }}
@@ -180,7 +200,7 @@ export default function EditorSidebar() {
                         onClick={() => {
                           addFormFieldOption(selectedField.id, {
                             id: generateId("field_option"),
-                            label: `Option ${(selectedField.options ?? []).length + 1}`,
+                            value: `Option ${(selectedField.options ?? []).length + 1}`,
                             position: (selectedField.options ?? []).length,
                           });
                         }}
@@ -196,7 +216,74 @@ export default function EditorSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function NavUser() {
+  const { isMobile } = useSidebar();
+
+  const { data: session } = authClient.useSession();
+
+  const user = session?.user;
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+            >
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarFallback className="bg-secondary text-secondary-foreground">
+                  {session?.user.name[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">{user?.name}</span>
+                <span className="truncate text-xs">{user?.email}</span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarFallback className="bg-secondary text-secondary-foreground">
+                    {session?.user.name[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={async () => {
+                await authClient.signOut();
+                redirect("/");
+              }}
+            >
+              <LogOut />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
