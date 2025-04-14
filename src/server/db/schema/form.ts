@@ -61,19 +61,32 @@ export const formField = pgTable("form_field", {
   updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 });
 
-export const formFieldRelations = relations(formField, ({ many }) => ({
-  fieldOptions: many(formFieldOption),
+export const formFieldRelations = relations(formField, ({ one, many }) => ({
+  form: one(form, {
+    fields: [formField.formId],
+    references: [form.id],
+  }),
+  options: many(formFieldOption),
 }));
 
 export const formFieldOption = pgTable("form_field_option", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
-  formFieldId: integer()
+  fieldId: integer()
     .references(() => formField.id, { onDelete: "cascade" })
     .notNull(),
   value: varchar({ length: 256 }).notNull(),
-  label: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
 });
+
+export const formFieldOptionRelations = relations(
+  formFieldOption,
+  ({ one }) => ({
+    field: one(formField, {
+      fields: [formFieldOption.fieldId],
+      references: [formField.id],
+    }),
+  }),
+);
 
 export type Form = typeof form.$inferSelect;
 export type FormField = typeof formField.$inferSelect;
@@ -84,3 +97,10 @@ export type FormFieldInsert = typeof formField.$inferInsert;
 export type FormFieldOptionInsert = typeof formFieldOption.$inferInsert;
 
 export type FieldType = (typeof fieldType.enumValues)[number];
+
+export type FormFieldWithOptions = FormField & {
+  options: FormFieldOption[];
+};
+export type FormWithFields = Form & {
+  fields: FormFieldWithOptions[];
+};
