@@ -24,11 +24,29 @@ export default async function EditorPage({
   }
 
   if (!form) {
-    return <div>Form not found!</div>;
+    return (
+      <div className="bg-muted flex min-h-screen items-center justify-center">
+        <div className="rounded-lg bg-white p-8 shadow-lg">
+          <h2 className="mb-2 text-2xl font-bold">Form not found!</h2>
+          <p className="text-muted-foreground">
+            The form you are looking for does not exist.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (form.creator != session.user.id) {
-    return <div>You are not authorized to edit this form!</div>;
+    return (
+      <div className="bg-muted flex min-h-screen items-center justify-center">
+        <div className="rounded-lg bg-white p-8 shadow-lg">
+          <h2 className="mb-2 text-2xl font-bold">Unauthorized</h2>
+          <p className="text-muted-foreground">
+            You are not authorized to edit this form!
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,11 +1,8 @@
 "use client";
 
 import {
-  BadgeCheck,
-  Bell,
   CheckSquare,
   ChevronsUpDown,
-  CreditCard,
   FileText,
   Hash,
   List,
@@ -13,18 +10,17 @@ import {
   Mail,
   Phone,
   Plus,
-  Sparkles,
   Trash2,
   Type,
   type LucideIcon,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { redirect } from "next/navigation";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -47,9 +43,8 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { authClient } from "~/lib/auth-client";
-import { user, type FieldType } from "~/server/db/schema";
+import { type FieldType } from "~/server/db/schema";
 import { useFormEditorStore } from "./store";
-import { redirect } from "next/navigation";
 
 export const generateId = (prefix: string) =>
   `${prefix}_${Math.random().toString(36).substring(2, 9)}`;
@@ -100,6 +95,7 @@ export default function EditorSidebar() {
               {fieldTypes.map((fieldType) => (
                 <SidebarMenuItem key={fieldType.id}>
                   <SidebarMenuButton
+                    className="cursor-pointer"
                     onClick={() => {
                       addField({
                         id: generateId("field"),
@@ -123,7 +119,7 @@ export default function EditorSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Field Properties</SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="space-y-6 p-2">
+              <div className="space-y-6 p-4">
                 <div>
                   <Label className="mb-2 block" htmlFor="field-label">
                     Label
@@ -177,7 +173,7 @@ export default function EditorSidebar() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive h-8 w-8"
+                            className="text-destructive hover:text-destructive h-8 w-8 transition-colors"
                             onClick={() => {
                               removeFormFieldOption(
                                 selectedField.id,
@@ -205,7 +201,7 @@ export default function EditorSidebar() {
                           });
                         }}
                       >
-                        <Plus className="mr-2 h-4 w-4" />
+                        <Plus className="h-4 w-4" />
                         Add Option
                       </Button>
                     </div>
