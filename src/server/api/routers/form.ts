@@ -1,38 +1,19 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { form, formField, formFieldOption } from "~/server/db/schema/form";
+import {
+  form,
+  formField,
+  formFieldOption,
+  userFieldOptionResponse,
+  userFieldResponse,
+  userResponse,
+} from "~/server/db/schema/form";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-
-const FormFieldOptionSchema = z.object({
-  id: z.any(),
-  value: z.string(),
-  position: z.number(),
-});
-
-const FormFieldSchema = z.object({
-  id: z.any(),
-  type: z.enum([
-    "text",
-    "textarea",
-    "number",
-    "email",
-    "phone",
-    "checkbox",
-    "radio",
-  ]),
-  label: z.string(),
-  description: z.string().nullish(),
-  position: z.number(),
-  required: z.boolean().optional(),
-  options: z.array(FormFieldOptionSchema).optional(),
-});
-
-const UpdateFormSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  description: z.string().nullish(),
-  fields: z.array(FormFieldSchema),
-});
+import {
+  UpdateFormSchema,
+  SubmitFormResponseSchema,
+} from "../schemas/formSchemas";
+import { TRPCError } from "@trpc/server";
 
 export const formRouter = createTRPCRouter({
   createForm: protectedProcedure
@@ -68,6 +49,65 @@ export const formRouter = createTRPCRouter({
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.select().from(form);
   }),
+  getAllFormResponses: protectedProcedure
+    .input(z.object({ formId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const f = await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
+      });
+
+      if (f?.creator != ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized access to the form",
+        });
+      }
+
+      return await ctx.db.query.userResponse.findMany({
+        with: {
+          fieldResponses: {
+            with: {
+              field: true,
+              options: {
+                with: {
+                  option: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
+  getFormResponse: protectedProcedure
+    .input(z.object({ formId: z.number().int(), responseId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const f = await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
+      });
+
+      if (!f || f.creator !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized access to the form",
+        });
+      }
+
+      return await ctx.db.query.userResponse.findFirst({
+        where: eq(userResponse.id, input.responseId),
+        with: {
+          fieldResponses: {
+            with: {
+              field: true,
+              options: {
+                with: {
+                  option: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
   // mutations
   updateForm: protectedProcedure
     .input(UpdateFormSchema)
@@ -116,5 +156,75 @@ export const formRouter = createTRPCRouter({
 
         return { success: true };
       });
+    }),
+  submitFormResponse: protectedProcedure
+    .input(SubmitFormResponseSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { formId, responses } = input;
+      const userId = ctx.session.user.id;
+
+      // Validate that the form exists
+      const formExists = await ctx.db.query.form.findFirst({
+        where: eq(form.id, formId),
+      });
+
+      if (!formExists) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Form not found",
+        });
+      }
+
+      // Insert responses into the database
+      await ctx.db.transaction(async (tx) => {
+        const [userResponseId] = await tx
+          .insert(userResponse)
+          .values([
+            {
+              formId,
+              userId,
+            },
+          ])
+          .returning({ id: userResponse.id });
+
+        for (const response of responses) {
+          if (response.type && !Array.isArray(response.value)) {
+            await tx.insert(userFieldResponse).values([
+              {
+                responseId: userResponseId!.id,
+                fieldId: response.fieldId,
+                value: String(response.value),
+                type: response.type,
+              },
+            ]);
+          } else if (
+            response.type === "checkbox" &&
+            Array.isArray(response.value)
+          ) {
+            const [userFieldResponseId] = await tx
+              .insert(userFieldResponse)
+              .values([
+                {
+                  responseId: userResponseId!.id,
+                  fieldId: response.fieldId,
+                  value: undefined,
+                  type: response.type,
+                },
+              ])
+              .returning({ id: userFieldResponse.id });
+            for (const value of response.value) {
+              await tx.insert(userFieldOptionResponse).values([
+                {
+                  responseFieldId: userFieldResponseId!.id,
+                  // TODO: Maybe check if this is even a valid id too
+                  optionId: Number(value),
+                },
+              ]);
+            }
+          }
+        }
+      });
+
+      return { success: true };
     }),
 });
