@@ -36,10 +36,13 @@ export default async function UserFormList() {
             </CardHeader>
             <CardContent className="mt-auto flex gap-2">
               <Button size="sm" asChild>
-                <Link href={`/forms/${form.id}`}>View Responses</Link>
+                <Link href={`/forms/${form.id}/responses`}>View Responses</Link>
+              </Button>
+              <Button variant="secondary" size="sm" asChild className="ml-auto">
+                <Link href={`/editor/${form.id}`}>Edit</Link>
               </Button>
               <Button variant="secondary" size="sm" asChild>
-                <Link href={`/editor/${form.id}`}>Edit</Link>
+                <Link href={`/forms/${form.id}`}>Fill Out</Link>
               </Button>
             </CardContent>
           </Card>

@@ -16,7 +16,7 @@ export default function NewForm() {
       return;
     }
 
-    redirect(`/forms/${newForm.id}`);
+    redirect(`/forms`);
   };
 
   return (

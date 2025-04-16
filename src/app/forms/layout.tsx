@@ -16,19 +16,19 @@ export default async function FormLayout({
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto flex min-h-full flex-col px-4 py-8">
       <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-full">
-            <div className="mb-2 flex items-center">
-              <UserAvatar className="ml-auto md:hidden" />
+          <div className="flex w-full justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Welcome back, {session?.user.name}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Manage and customize your forms
+              </p>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Welcome back, {session?.user.name}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Manage and customize your forms
-            </p>
+            <UserAvatar className="ml-2 md:hidden" />
           </div>
         </div>
         <div className="grid gap-2 md:ml-auto md:flex">
@@ -43,10 +43,10 @@ export default async function FormLayout({
             </Link>
           </Button>
           <CreateNewFormButton />
-          <UserAvatar className="hidden md:block" />
+          <UserAvatar className="ml-2 hidden md:block" />
         </div>
       </header>
-      <main>{children}</main>
+      <main className="flex-grow">{children}</main>
     </div>
   );
 }

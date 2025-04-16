@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { auth } from "~/server/auth";
 import { caller, HydrateClient } from "~/trpc/server";
+import EditorPreview from "./editor-preview";
 import EditorSidebar from "./editor-sidebar";
 import { FormEditorProvider } from "./store";
-import EditorPreview from "./editor-preview";
 
 export default async function EditorPage({
   params,

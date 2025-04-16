@@ -1,6 +1,8 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { ChevronDown, FileText, Loader, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -19,7 +21,6 @@ import { SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
 import { Textarea } from "~/components/ui/textarea";
 import { useTRPC } from "~/trpc/react";
 import { useFormEditorStore } from "./store";
-import { useMutation } from "@tanstack/react-query";
 
 export default function EditorPreview() {
   const form = useFormEditorStore((s) => s.form);
@@ -38,16 +39,18 @@ export default function EditorPreview() {
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <div className="flex-1">
-          <Input
-            value={form.title}
-            onChange={(e) => updateForm({ title: e.target.value })}
-            className="h-9 border-none px-0 text-lg font-semibold focus-visible:ring-0"
-          />
+        <div className="flex-1 border-none text-lg font-semibold">
+          {form.title || "Enter a Title"}
         </div>
+        <Button className="cursor-pointer" variant="outline" asChild>
+          <Link href="/forms">
+            <FileText className="mr-2 h-4 w-4" /> My Forms
+          </Link>
+        </Button>
         <Button
           className="cursor-pointer"
           variant="default"
+          disabled={updateFormMutation.isPending}
           onClick={() => {
             const formData = {
               id: form.id,
@@ -76,15 +79,17 @@ export default function EditorPreview() {
             <CardTitle>
               <Input
                 value={form.title}
+                placeholder="Enter a Title"
                 onChange={(e) => updateForm({ title: e.target.value })}
-                className="h-9 border-none px-0 text-xl font-semibold focus-visible:ring-0"
+                className="h-9 border-none text-xl font-semibold focus-visible:ring-0"
               />
             </CardTitle>
             <CardDescription>
               <Textarea
                 value={form.description ?? ""}
+                placeholder="Enter a description"
                 onChange={(e) => updateForm({ description: e.target.value })}
-                className="min-h-[60px] resize-none border-none px-0 focus-visible:ring-0"
+                className="min-h-[60px] resize-none border-none focus-visible:ring-0"
               />
             </CardDescription>
           </CardHeader>
@@ -108,7 +113,7 @@ export default function EditorPreview() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-8 w-8 cursor-pointer"
                       onClick={() => moveField(index, index - 1)}
                       disabled={index === 0}
                     >
@@ -117,7 +122,7 @@ export default function EditorPreview() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-8 w-8 cursor-pointer"
                       onClick={() => moveField(index, index + 1)}
                       disabled={index === formFields.length - 1}
                     >
@@ -126,7 +131,7 @@ export default function EditorPreview() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive hover:text-destructive h-8 w-8"
+                      className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         removeField(field.id);
@@ -195,7 +200,7 @@ export default function EditorPreview() {
             )}
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full cursor-pointer">
               Submit
             </Button>
           </CardFooter>
