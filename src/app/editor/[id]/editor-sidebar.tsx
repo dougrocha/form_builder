@@ -63,6 +63,14 @@ const fieldTypes: {
   { id: "radio", name: "Radio Group", icon: List },
 ];
 
+function generateDefaultOptions(type: string, count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    id: generateId(`${type}_option`),
+    value: `Option ${index + 1}`,
+    position: index,
+  }));
+}
+
 export default function EditorSidebar() {
   const selectedFieldId = useFormEditorStore((s) => s.selectedFieldId);
   const formFields = useFormEditorStore((s) => s.fields);
@@ -102,7 +110,11 @@ export default function EditorSidebar() {
                         type: fieldType.id,
                         label: fieldType.name,
                         position: formFields.length,
-                        options: [],
+                        options:
+                          fieldType.id === "radio" ||
+                          fieldType.id === "checkbox"
+                            ? generateDefaultOptions(fieldType.id, 3)
+                            : undefined,
                       });
                     }}
                   >
@@ -173,7 +185,7 @@ export default function EditorSidebar() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive h-8 w-8 transition-colors"
+                            className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer transition-colors"
                             onClick={() => {
                               removeFormFieldOption(
                                 selectedField.id,
@@ -192,7 +204,7 @@ export default function EditorSidebar() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-full"
+                        className="w-full cursor-pointer"
                         onClick={() => {
                           addFormFieldOption(selectedField.id, {
                             id: generateId("field_option"),
