@@ -43,6 +43,7 @@ export const form = pgTable("form", {
 
 export const formRelations = relations(form, ({ many }) => ({
   fields: many(formField),
+  responses: many(userResponse),
 }));
 
 export const formField = pgTable("form_field", {
@@ -59,6 +60,7 @@ export const formField = pgTable("form_field", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  deletedAt: timestamp({ withTimezone: true }),
 });
 
 export const formFieldRelations = relations(formField, ({ one, many }) => ({
@@ -76,6 +78,11 @@ export const formFieldOption = pgTable("form_field_option", {
     .notNull(),
   value: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  deletedAt: timestamp({ withTimezone: true }),
 });
 
 export const formFieldOptionRelations = relations(
@@ -104,3 +111,84 @@ export type FormFieldWithOptions = FormField & {
 export type FormWithFields = Form & {
   fields: FormFieldWithOptions[];
 };
+
+// User Responses
+
+export const userResponse = pgTable("user_response", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  formId: integer()
+    .references(() => form.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: text()
+    .notNull()
+    .references(() => user.id),
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const userResponseRelations = relations(
+  userResponse,
+  ({ one, many }) => ({
+    form: one(form, {
+      fields: [userResponse.formId],
+      references: [form.id],
+    }),
+    user: one(user, {
+      fields: [userResponse.userId],
+      references: [user.id],
+    }),
+    fieldResponses: many(userFieldResponse),
+  }),
+);
+
+export const userFieldResponse = pgTable("user_field_response", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  responseId: integer()
+    .references(() => userResponse.id, { onDelete: "cascade" })
+    .notNull(),
+  fieldId: integer()
+    .references(() => formField.id)
+    .notNull(),
+  type: fieldType().notNull(),
+  value: text(),
+});
+
+export const userFieldResponseRelations = relations(
+  userFieldResponse,
+  ({ one, many }) => ({
+    response: one(userResponse, {
+      fields: [userFieldResponse.responseId],
+      references: [userResponse.id],
+    }),
+    field: one(formField, {
+      fields: [userFieldResponse.fieldId],
+      references: [formField.id],
+    }),
+    options: many(userFieldOptionResponse),
+  }),
+);
+
+export const userFieldOptionResponse = pgTable("user_field_option_response", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  responseFieldId: integer()
+    .references(() => userFieldResponse.id, { onDelete: "cascade" })
+    .notNull(),
+  optionId: integer()
+    .references(() => formFieldOption.id)
+    .notNull(),
+});
+
+export const userFieldOptionResponseRelations = relations(
+  userFieldOptionResponse,
+  ({ one }) => ({
+    responseField: one(userFieldResponse, {
+      fields: [userFieldOptionResponse.responseFieldId],
+      references: [userFieldResponse.id],
+    }),
+    option: one(formFieldOption, {
+      fields: [userFieldOptionResponse.optionId],
+      references: [formFieldOption.id],
+    }),
+  }),
+);

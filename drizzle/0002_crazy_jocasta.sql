@@ -1,1 +1,0 @@
-ALTER TABLE "form" ADD COLUMN "share_id" uuid DEFAULT gen_random_uuid();

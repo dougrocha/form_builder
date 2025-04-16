@@ -1,1 +1,0 @@
-ALTER TABLE "form_field_option" DROP COLUMN "label";
