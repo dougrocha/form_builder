@@ -1,9 +1,10 @@
+import { TRPCError } from "@trpc/server";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { tryCatch } from "~/lib/utils";
 import { caller } from "~/trpc/server";
 import FormNotFound from "../../form-not-found";
-import ResponseNotFound from "./response-not-found";
-import { tryCatch } from "~/lib/utils";
-import { TRPCError } from "@trpc/server";
 import UnauthorizedFormAccess from "../../unauthorized-form-access";
+import ResponseNotFound from "./response-not-found";
 
 export default async function FormResponsePage({
   params,
@@ -37,12 +38,11 @@ export default async function FormResponsePage({
   }
 
   return (
-    <div className="p-4">
-      <h1 className="mb-5 text-2xl font-bold text-gray-800">Form Response</h1>
-      <div className="rounded-lg border border-gray-300 bg-gray-100 p-4">
-        <h2 className="mb-3 text-lg font-semibold text-gray-600">
-          Response Details
-        </h2>
+    <Card className="shadow-sm">
+      <CardHeader className="flex flex-col space-y-1.5 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <CardTitle className="mb-4 text-2xl font-bold">Form Response</CardTitle>
+      </CardHeader>
+      <CardContent>
         <p className="mb-2">
           <strong>Form ID:</strong> {formId}
         </p>
@@ -58,7 +58,7 @@ export default async function FormResponsePage({
             {JSON.stringify(response, null, 2)}
           </pre>
         </p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
