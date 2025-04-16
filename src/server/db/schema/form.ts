@@ -12,6 +12,18 @@ import {
 
 import { user } from "./auth";
 
+const timestamps = {
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+};
+
+const soft_delete = {
+  isDeleted: boolean().default(false).notNull(),
+  deletedAt: timestamp({ withTimezone: true }),
+};
+
 export const fieldType = pgEnum("field_type", [
   "text",
   "textarea",
@@ -30,10 +42,7 @@ export const form = pgTable("form", {
   creator: text()
     .notNull()
     .references(() => user.id),
-  createdAt: timestamp({ withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  ...timestamps,
 
   responses: integer().default(0),
   share_id: uuid()
@@ -56,11 +65,8 @@ export const formField = pgTable("form_field", {
   position: integer().notNull(),
   type: fieldType().notNull(),
   required: boolean().default(false).notNull(),
-  createdAt: timestamp({ withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  deletedAt: timestamp({ withTimezone: true }),
+  ...timestamps,
+  ...soft_delete,
 });
 
 export const formFieldRelations = relations(formField, ({ one, many }) => ({
@@ -78,11 +84,8 @@ export const formFieldOption = pgTable("form_field_option", {
     .notNull(),
   value: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
-  createdAt: timestamp({ withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  deletedAt: timestamp({ withTimezone: true }),
+  ...timestamps,
+  ...soft_delete,
 });
 
 export const formFieldOptionRelations = relations(
@@ -113,7 +116,6 @@ export type FormWithFields = Form & {
 };
 
 // User Responses
-
 export const userResponse = pgTable("user_response", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formId: integer()

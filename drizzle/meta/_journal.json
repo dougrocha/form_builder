@@ -8,6 +8,13 @@
       "when": 1744787271457,
       "tag": "0000_dashing_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744798299691,
+      "tag": "0001_talented_nova",
+      "breakpoints": true
     }
   ]
 }
