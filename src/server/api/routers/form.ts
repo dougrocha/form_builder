@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   form,
@@ -49,7 +49,7 @@ export const formRouter = createTRPCRouter({
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.select().from(form);
   }),
-  getAllFormResponses: protectedProcedure
+  getFormWithResponses: protectedProcedure
     .input(z.object({ formId: z.number().int() }))
     .query(async ({ ctx, input }) => {
       const f = await ctx.db.query.form.findFirst({
@@ -63,14 +63,26 @@ export const formRouter = createTRPCRouter({
         });
       }
 
-      return await ctx.db.query.userResponse.findMany({
+      return await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
         with: {
-          fieldResponses: {
+          responses: {
             with: {
-              field: true,
-              options: {
+              user: {
+                columns: { name: true },
+              },
+              fieldResponses: {
                 with: {
-                  option: true,
+                  field: true,
+                  options: {
+                    with: {
+                      option: {
+                        columns: {
+                          value: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -85,7 +97,7 @@ export const formRouter = createTRPCRouter({
         where: eq(form.id, input.formId),
       });
 
-      if (!f || f.creator !== ctx.session.user.id) {
+      if (f?.creator !== ctx.session.user.id) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Unauthorized access to the form",
@@ -95,12 +107,19 @@ export const formRouter = createTRPCRouter({
       return await ctx.db.query.userResponse.findFirst({
         where: eq(userResponse.id, input.responseId),
         with: {
+          user: {
+            columns: { name: true },
+          },
           fieldResponses: {
             with: {
               field: true,
               options: {
                 with: {
-                  option: true,
+                  option: {
+                    columns: {
+                      value: true,
+                    },
+                  },
                 },
               },
             },
@@ -123,8 +142,9 @@ export const formRouter = createTRPCRouter({
           .where(eq(form.id, id));
 
         // Delete existing fields and options to replace with new ones
-        await tx.delete(formFieldOption).where(eq(formFieldOption.fieldId, id));
-        await tx.delete(formField).where(eq(formField.formId, id));
+        // TODO: Fix deletion
+        // await tx.delete(formFieldOption).where(eq(formFieldOption.fieldId, id));
+        // await tx.delete(formField).where(eq(formField.formId, id));
 
         // Insert new fields
         for (const field of fields) {
@@ -223,6 +243,13 @@ export const formRouter = createTRPCRouter({
             }
           }
         }
+
+        await tx
+          .update(form)
+          .set({
+            responses: sql`${form.responses} + 1`,
+          })
+          .where(eq(form.id, formId));
       });
 
       return { success: true };
