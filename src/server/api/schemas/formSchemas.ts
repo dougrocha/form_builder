@@ -25,7 +25,7 @@ export const FormFieldSchema = z.object({
 });
 
 export const UpdateFormSchema = z.object({
-  id: z.number(),
+  formId: z.number(),
   title: z.string(),
   description: z.string().nullish(),
   fields: z.array(FormFieldSchema),

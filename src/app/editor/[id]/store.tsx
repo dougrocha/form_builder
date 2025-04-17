@@ -20,6 +20,7 @@ type EditorFormField = {
   position: number;
   required?: boolean;
   options?: EditorFormFieldOption[];
+  deletedOptions?: EditorFormFieldOption[];
 };
 
 type EditorFormFieldOption = {
@@ -31,10 +32,12 @@ type EditorFormFieldOption = {
 type State = {
   form: Form;
   fields: EditorFormField[];
+  deletedFields: EditorFormField[];
   selectedFieldId?: string;
 };
 
 type Action = {
+  updateState: (new_form: FormWithFields) => void;
   setSelectedFieldId: (fieldId?: string) => void;
   updateForm: (form: Partial<Form>) => void;
   addField: (field: EditorFormField) => void;
@@ -61,20 +64,46 @@ function transformFormField(field: FormFieldWithOptions): EditorFormField {
     description: field.description ?? undefined,
     position: field.position,
     required: field.required,
-    options: field.options?.map((option) => ({
-      id: String(option.id),
-      value: option.value,
-      position: option.position,
-    })),
+    options: field.options
+      ?.filter((option) => !option.isDeleted)
+      .map((option) => ({
+        id: String(option.id),
+        value: option.value,
+        position: option.position,
+      }))
+      .sort((a, b) => a.position - b.position),
+    deletedOptions:
+      field.options
+        ?.filter((option) => option.isDeleted)
+        .map((option) => ({
+          id: String(option.id),
+          value: option.value,
+          position: option.position,
+        })) ?? [],
   };
 }
 
 export const createFormEditorStore = (form: FormWithFields) => {
   return createStore<State & Action>()((set) => ({
     form,
-    fields: form.fields.map(transformFormField),
+    fields: form.fields.filter((x) => !x.isDeleted).map(transformFormField),
+    deletedFields: form.fields
+      .filter((x) => x.isDeleted)
+      .map(transformFormField),
     selectedFieldId: undefined,
 
+    updateState: (newForm: FormWithFields) =>
+      set(() => ({
+        form: newForm,
+        fields: newForm.fields
+          .filter((x) => !x.isDeleted)
+          .map(transformFormField)
+          .sort((a, b) => a.position - b.position),
+        deletedFields: newForm.fields
+          .filter((x) => x.isDeleted)
+          .map(transformFormField),
+        selectedFieldId: undefined,
+      })),
     setSelectedFieldId: (fieldId?: string) =>
       set(() => ({ selectedFieldId: fieldId })),
     updateForm: (form: Partial<Form>) =>
@@ -96,6 +125,9 @@ export const createFormEditorStore = (form: FormWithFields) => {
         const newFields = [...state.fields];
         const movedField = newFields.splice(from, 1);
         newFields.splice(to, 0, ...movedField);
+        newFields.forEach((field, index) => {
+          field.position = index;
+        });
 
         return {
           fields: newFields,
@@ -113,7 +145,10 @@ export const createFormEditorStore = (form: FormWithFields) => {
           field.id === fieldId
             ? {
                 ...field,
-                options: [...(field.options ?? []), option],
+                options: [
+                  ...(field.options ?? []),
+                  { ...option, position: field.options?.length ?? 0 },
+                ],
               }
             : field,
         ),
@@ -135,17 +170,23 @@ export const createFormEditorStore = (form: FormWithFields) => {
             : field,
         ),
       })),
-    removeFormFieldOption: (fieldId: string, optionId: string) =>
-      set((state) => ({
+    removeFormFieldOption: (fieldId: string, optionId: string) => {
+      return set((state) => ({
         fields: state.fields.map((field) =>
           field.id === fieldId
             ? {
                 ...field,
-                options: field.options?.filter((opt) => opt.id !== optionId),
+                options: field.options
+                  ?.filter((opt) => opt.id !== optionId)
+                  .map((opt, index) => ({
+                    ...opt,
+                    position: index,
+                  })),
               }
             : field,
         ),
-      })),
+      }));
+    },
   }));
 };
 

@@ -168,18 +168,20 @@ export const formRouter = createTRPCRouter({
   updateForm: protectedProcedure
     .input(UpdateFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const { id, title, description, fields } = input;
+      const { formId, title, description, fields } = input;
 
-      // Start a transaction to ensure data consistency
-      return await ctx.db.transaction(async (tx) => {
+      await ctx.db.transaction(async (tx) => {
         // Update the form
         await tx
           .update(form)
           .set({ title, description })
-          .where(eq(form.id, id));
+          .where(eq(form.id, formId));
 
         const existingFields = await tx.query.formField.findMany({
-          where: and(eq(formField.formId, id), eq(formField.isDeleted, false)),
+          where: and(
+            eq(formField.formId, formId),
+            eq(formField.isDeleted, false),
+          ),
           with: { options: true },
         });
 
@@ -239,7 +241,7 @@ export const formRouter = createTRPCRouter({
           const [newField] = await tx
             .insert(formField)
             .values({
-              formId: id,
+              formId: formId,
               type: field.type,
               label: field.label,
               description: field.description,
@@ -264,9 +266,18 @@ export const formRouter = createTRPCRouter({
         await tx
           .update(form)
           .set({ title, description })
-          .where(eq(form.id, id));
+          .where(eq(form.id, formId));
+      });
 
-        return { success: true };
+      return await ctx.db.query.form.findFirst({
+        where: eq(form.id, formId),
+        with: {
+          fields: {
+            with: {
+              options: true,
+            },
+          },
+        },
       });
     }),
   submitFormResponse: protectedProcedure
