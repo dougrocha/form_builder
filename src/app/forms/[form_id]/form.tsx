@@ -87,7 +87,7 @@ export default function Form({ form: form_data }: FormProps) {
       );
 
       if (error) {
-        console.log("Submit error", error);
+        console.error("Submit error", error);
       }
 
       if (data?.success) {

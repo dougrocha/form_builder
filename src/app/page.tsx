@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, Loader } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -9,8 +9,8 @@ import UserAvatar from "~/components/user-avatar";
 import { auth } from "~/server/auth";
 import LoginForm from "../components/auth/login-form";
 import SignUpForm from "../components/auth/signup-form";
-import FormList from "./form-list";
 import { CreateNewFormButton } from "./forms/create-new-form-button";
+import FormList from "./form-list";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -19,7 +19,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto flex flex-grow flex-col px-4 py-8">
         <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {session ? (
             <>
@@ -63,19 +63,21 @@ export default async function Home() {
             </Tabs>
           )}
         </header>
-        <main>
-          <div>
-            <h2 className="mb-8 text-2xl font-semibold">
-              Recently Posted Forms
-            </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <ErrorBoundary fallback="Something went wrong">
-                <Suspense fallback="Loading...">
-                  <FormList />
-                </Suspense>
-              </ErrorBoundary>
-            </div>
-          </div>
+        <main className="flex flex-grow flex-col">
+          <h2 className="mb-8 text-2xl font-semibold">Recently Posted Forms</h2>
+          <ErrorBoundary fallback="Something went wrong">
+            <Suspense
+              fallback={
+                <div className="flex min-h-full flex-grow items-center justify-center">
+                  <Loader className="h-8 w-8 animate-spin" />
+                </div>
+              }
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <FormList />
+              </div>
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     </>

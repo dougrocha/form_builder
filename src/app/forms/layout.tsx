@@ -16,7 +16,7 @@ export default async function FormLayout({
   });
 
   return (
-    <div className="container mx-auto flex min-h-full flex-col px-4 py-8">
+    <div className="container mx-auto flex flex-grow flex-col px-4 py-8">
       <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex w-full justify-between">
@@ -46,7 +46,7 @@ export default async function FormLayout({
           <UserAvatar className="ml-2 hidden md:block" />
         </div>
       </header>
-      <main className="flex-grow">{children}</main>
+      <main className="flex flex-grow flex-col">{children}</main>
     </div>
   );
 }

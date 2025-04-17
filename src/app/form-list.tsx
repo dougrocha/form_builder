@@ -16,23 +16,16 @@ export default async function FormList() {
   return (
     <>
       {forms.map((form) => (
-        <Card
-          key={form.id}
-          className="bg-white shadow-sm transition-shadow hover:shadow-md"
-        >
+        <Card key={form.id}>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg text-gray-800">
-                {form.title}
-              </CardTitle>
+              <CardTitle className="text-lg">{form.title}</CardTitle>
               <Badge variant="outline">{form.responses} responses</Badge>
             </div>
-            <CardDescription className="text-gray-600">
-              {form.description}
-            </CardDescription>
+            <CardDescription>{form.description}</CardDescription>
           </CardHeader>
           <CardContent className="mt-auto">
-            <Button size="sm" asChild>
+            <Button size="sm">
               <Link href={`/forms/${form.id}`}>Fill Out</Link>
             </Button>
           </CardContent>

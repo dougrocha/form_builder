@@ -1,8 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { ChevronDown, FileText, Loader, Plus, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChevronDown, FileText, Loader, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -17,15 +18,10 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Separator } from "~/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarTrigger,
-  useSidebar,
-} from "~/components/ui/sidebar";
+import { SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
 import { Textarea } from "~/components/ui/textarea";
 import { useTRPC } from "~/trpc/react";
 import { useFormEditorStore } from "./store";
-import { Badge } from "~/components/ui/badge";
 
 export default function EditorPreview() {
   const form = useFormEditorStore((s) => s.form);
@@ -35,16 +31,28 @@ export default function EditorPreview() {
   const setSelectedFieldId = useFormEditorStore((s) => s.setSelectedFieldId);
   const moveField = useFormEditorStore((s) => s.moveField);
   const removeField = useFormEditorStore((s) => s.removeField);
+  const updateState = useFormEditorStore((s) => s.updateState);
 
   const trpc = useTRPC();
+  const useQuery = useQueryClient();
   const updateFormMutation = useMutation(
-    trpc.form.updateForm.mutationOptions(),
+    trpc.form.updateForm.mutationOptions({
+      onSuccess: (data) => {
+        if (data) {
+          updateState(data);
+        }
+
+        void useQuery.invalidateQueries({
+          queryKey: [trpc.form.getForm.queryKey, { id: form.id }],
+        });
+      },
+    }),
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const formData = {
-      id: form.id,
+      formId: form.id,
       title: form.title,
       description: form.description,
       fields: formFields,
@@ -54,10 +62,10 @@ export default function EditorPreview() {
 
   return (
     <SidebarInset>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <div className="flex-1 border-none text-lg font-semibold">
+      <header className="bg-background sticky top-0 z-99 flex h-16 w-full shrink-0 items-center gap-2 border-b px-4">
+        <h1 className="flex-1 border-none text-lg font-semibold">
           {form.title || "Enter a Title"}
-        </div>
+        </h1>
         <Button className="cursor-pointer" variant="outline" asChild>
           <Link href="/forms">
             <FileText className="mr-2 h-4 w-4" /> My Forms
@@ -91,6 +99,8 @@ export default function EditorPreview() {
                 placeholder="Enter a Title"
                 onChange={(e) => updateForm({ title: e.target.value })}
                 className="h-9 border-none text-xl font-semibold focus-visible:ring-0"
+                aria-label="Form title"
+                required
               />
             </CardTitle>
             <CardDescription>
@@ -99,6 +109,8 @@ export default function EditorPreview() {
                 placeholder="Enter a description"
                 onChange={(e) => updateForm({ description: e.target.value })}
                 className="min-h-[60px] resize-none border-none focus-visible:ring-0"
+                aria-label="Form description"
+                required
               />
             </CardDescription>
           </CardHeader>
@@ -144,6 +156,7 @@ export default function EditorPreview() {
                           className="h-8 w-8 cursor-pointer"
                           onClick={() => moveField(index, index - 1)}
                           disabled={index === 0}
+                          aria-label="Move field up"
                         >
                           <ChevronDown className="h-4 w-4 rotate-180" />
                         </Button>
@@ -153,6 +166,7 @@ export default function EditorPreview() {
                           className="h-8 w-8 cursor-pointer"
                           onClick={() => moveField(index, index + 1)}
                           disabled={index === formFields.length - 1}
+                          aria-label="Move field down"
                         >
                           <ChevronDown className="h-4 w-4" />
                         </Button>
@@ -164,6 +178,7 @@ export default function EditorPreview() {
                             e.stopPropagation();
                             removeField(field.id);
                           }}
+                          aria-label={`Remove ${field.label} field`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -40,6 +40,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from "~/components/ui/sidebar";
 import { authClient } from "~/lib/auth-client";
@@ -89,7 +90,7 @@ export default function EditorSidebar() {
   );
 
   return (
-    <Sidebar variant="inset" side="right">
+    <Sidebar variant="inset" side="right" className="border-l">
       <SidebarHeader>
         <div className="p-2">
           <h2 className="px-2 py-1 text-lg font-semibold">Form Builder</h2>
@@ -224,6 +225,7 @@ export default function EditorSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
+      <SidebarSeparator />
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>

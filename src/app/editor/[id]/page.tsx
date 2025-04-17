@@ -25,12 +25,10 @@ export default async function EditorPage({
 
   if (!form) {
     return (
-      <div className="bg-muted flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-white p-8 shadow-lg">
+      <div className="bg-muted flex min-h-full items-center justify-center">
+        <div className="rounded-lg p-8 shadow-lg">
           <h2 className="mb-2 text-2xl font-bold">Form not found!</h2>
-          <p className="text-muted-foreground">
-            The form you are looking for does not exist.
-          </p>
+          <p>The form you are looking for does not exist.</p>
         </div>
       </div>
     );
@@ -38,12 +36,10 @@ export default async function EditorPage({
 
   if (form.creator != session.user.id) {
     return (
-      <div className="bg-muted flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-white p-8 shadow-lg">
+      <div className="bg-muted flex min-h-full items-center justify-center">
+        <div className="rounded-lgp-8 shadow-lg">
           <h2 className="mb-2 text-2xl font-bold">Unauthorized</h2>
-          <p className="text-muted-foreground">
-            You are not authorized to edit this form!
-          </p>
+          <p>You are not authorized to edit this form!</p>
         </div>
       </div>
     );

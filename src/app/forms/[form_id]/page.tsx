@@ -23,9 +23,9 @@ export default async function FormPage({
 
   return (
     <div className="container mx-auto max-w-2xl">
-      <Card className="bg-white shadow-sm">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-lg text-gray-800">{form.title}</CardTitle>
+          <CardTitle className="text-lg">{form.title}</CardTitle>
           <CardDescription>{form.description}</CardDescription>
         </CardHeader>
         <CardContent>
