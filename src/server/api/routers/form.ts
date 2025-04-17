@@ -275,19 +275,7 @@ export const formRouter = createTRPCRouter({
           .returning({ id: userResponse.id });
 
         for (const response of responses) {
-          if (response.type && !Array.isArray(response.value)) {
-            await tx.insert(userFieldResponse).values([
-              {
-                responseId: userResponseId!.id,
-                fieldId: response.fieldId,
-                value: String(response.value),
-                type: response.type,
-              },
-            ]);
-          } else if (
-            response.type === "checkbox" &&
-            Array.isArray(response.value)
-          ) {
+          if (response.type === "checkbox" && Array.isArray(response.value)) {
             const [userFieldResponseId] = await tx
               .insert(userFieldResponse)
               .values([
@@ -305,6 +293,27 @@ export const formRouter = createTRPCRouter({
                   responseFieldId: userFieldResponseId!.id,
                   // TODO: Maybe check if this is even a valid id too
                   optionId: Number(value),
+                },
+              ]);
+            }
+          } else {
+            const [userFieldResponseId] = await tx
+              .insert(userFieldResponse)
+              .values([
+                {
+                  responseId: userResponseId!.id,
+                  fieldId: response.fieldId,
+                  value: String(response.value),
+                  type: response.type,
+                },
+              ])
+              .returning({ id: userFieldResponse.id });
+
+            if (response.type === "radio") {
+              await tx.insert(userFieldOptionResponse).values([
+                {
+                  responseFieldId: userFieldResponseId!.id,
+                  optionId: Number(response.value),
                 },
               ]);
             }
