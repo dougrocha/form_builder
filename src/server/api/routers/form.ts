@@ -58,6 +58,31 @@ export const formRouter = createTRPCRouter({
         },
       });
     }),
+  getFormWithDeletedFields: protectedProcedure
+    .input(z.object({ formId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const f = await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
+      });
+
+      if (f?.creator != ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized access to the form",
+        });
+      }
+
+      return await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
+        with: {
+          fields: {
+            with: {
+              options: true,
+            },
+          },
+        },
+      });
+    }),
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.select().from(form);
   }),
