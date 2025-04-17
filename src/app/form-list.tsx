@@ -33,7 +33,7 @@ export default async function FormList() {
           </CardHeader>
           <CardContent className="mt-auto">
             <Button size="sm" asChild>
-              <Link href={`/forms/${form.id}`}>View Responses</Link>
+              <Link href={`/forms/${form.id}`}>Fill Out</Link>
             </Button>
           </CardContent>
         </Card>

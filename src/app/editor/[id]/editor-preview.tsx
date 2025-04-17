@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { ChevronDown, FileText, Loader, Trash2 } from "lucide-react";
+import { ChevronDown, FileText, Loader, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import {
@@ -17,10 +17,15 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Separator } from "~/components/ui/separator";
-import { SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarTrigger,
+  useSidebar,
+} from "~/components/ui/sidebar";
 import { Textarea } from "~/components/ui/textarea";
 import { useTRPC } from "~/trpc/react";
 import { useFormEditorStore } from "./store";
+import { Badge } from "~/components/ui/badge";
 
 export default function EditorPreview() {
   const form = useFormEditorStore((s) => s.form);
@@ -35,6 +40,17 @@ export default function EditorPreview() {
   const updateFormMutation = useMutation(
     trpc.form.updateForm.mutationOptions(),
   );
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = {
+      id: form.id,
+      title: form.title,
+      description: form.description,
+      fields: formFields,
+    };
+    updateFormMutation.mutate(formData);
+  };
 
   return (
     <SidebarInset>
@@ -51,15 +67,8 @@ export default function EditorPreview() {
           className="cursor-pointer"
           variant="default"
           disabled={updateFormMutation.isPending}
-          onClick={() => {
-            const formData = {
-              id: form.id,
-              title: form.title,
-              description: form.description,
-              fields: formFields,
-            };
-            updateFormMutation.mutate(formData);
-          }}
+          type="submit"
+          onClick={handleSubmit}
         >
           {updateFormMutation.isPending ? (
             <>
@@ -104,104 +113,131 @@ export default function EditorPreview() {
               </div>
             ) : (
               formFields.map((field, index) => (
-                <div
+                <Card
                   key={field.id}
                   className={`relative rounded-lg border p-4 ${selectedFieldId === field.id ? "ring-primary ring-2" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selectedFieldId === field.id}
+                  aria-label={`Edit ${field.label} field`}
                   onClick={() => setSelectedFieldId(field.id)}
+                  onFocus={() => setSelectedFieldId(field.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setSelectedFieldId(field.id);
+                    }
+                  }}
                 >
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 cursor-pointer"
-                      onClick={() => moveField(index, index - 1)}
-                      disabled={index === 0}
-                    >
-                      <ChevronDown className="h-4 w-4 rotate-180" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 cursor-pointer"
-                      onClick={() => moveField(index, index + 1)}
-                      disabled={index === formFields.length - 1}
-                    >
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeField(field.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="mb-4">
-                    <Label className="text-base">
-                      {field.label}{" "}
-                      {field.required && (
-                        <span className="text-destructive">*</span>
-                      )}
-                    </Label>
-                  </div>
-
-                  {field.type === "text" && <Input placeholder="Enter text" />}
-
-                  {field.type === "textarea" && (
-                    <Textarea placeholder="Enter text" />
-                  )}
-
-                  {field.type === "number" && (
-                    <Input type="number" placeholder="0" />
-                  )}
-
-                  {field.type === "email" && (
-                    <Input type="email" placeholder="name@example.com" />
-                  )}
-
-                  {field.type === "phone" && (
-                    <Input type="tel" placeholder="+1 (555) 000-0000" />
-                  )}
-
-                  {field.type === "checkbox" && (
-                    <div className="space-y-2">
-                      {field.options?.map((option) => (
-                        <div
-                          key={option.id}
-                          className="flex items-center space-x-2"
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between gap-2">
+                      <Label className="text-base">
+                        {field.label}{" "}
+                        {field.required && (
+                          <span className="text-destructive">*</span>
+                        )}
+                      </Label>
+                      <Badge className="ml-auto">{field.type}</Badge>
+                      <div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 cursor-pointer"
+                          onClick={() => moveField(index, index - 1)}
+                          disabled={index === 0}
                         >
-                          <Checkbox id={option.id} />
-                          <Label htmlFor={option.id}>{option.value}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {field.type === "radio" && (
-                    <RadioGroup>
-                      {field.options?.map((option) => (
-                        <div
-                          key={option.id}
-                          className="flex items-center space-x-2"
+                          <ChevronDown className="h-4 w-4 rotate-180" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 cursor-pointer"
+                          onClick={() => moveField(index, index + 1)}
+                          disabled={index === formFields.length - 1}
                         >
-                          <RadioGroupItem value={option.id} id={option.id} />
-                          <Label htmlFor={option.id}>{option.value}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
-                </div>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeField(field.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {field.type === "text" && (
+                      <Input placeholder="Enter text" tabIndex={-1} />
+                    )}
+
+                    {field.type === "textarea" && (
+                      <Textarea placeholder="Enter text" tabIndex={-1} />
+                    )}
+
+                    {field.type === "number" && (
+                      <Input type="number" placeholder="0" tabIndex={-1} />
+                    )}
+
+                    {field.type === "email" && (
+                      <Input
+                        type="email"
+                        placeholder="name@example.com"
+                        tabIndex={-1}
+                      />
+                    )}
+
+                    {field.type === "phone" && (
+                      <Input
+                        type="tel"
+                        placeholder="+1 (555) 000-0000"
+                        tabIndex={-1}
+                      />
+                    )}
+
+                    {field.type === "checkbox" && (
+                      <div className="space-y-2">
+                        {field.options?.map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox id={option.id} />
+                            <Label htmlFor={option.id}>{option.value}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {field.type === "radio" && (
+                      <RadioGroup>
+                        {field.options?.map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <Label htmlFor={option.id}>{option.value}</Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    )}
+                  </CardContent>
+                </Card>
               ))
             )}
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full cursor-pointer">
-              Submit
+            <Button
+              type="submit"
+              disabled={true}
+              className="w-full cursor-pointer"
+            >
+              Preview Form Submission
             </Button>
           </CardFooter>
         </Card>

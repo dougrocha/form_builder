@@ -54,10 +54,10 @@ export default async function FormResponsePage({
         </p>
         <p>
           <strong>Response Content:</strong>
-          <pre className="overflow-x-auto rounded-md bg-gray-200 p-3 font-mono">
-            {JSON.stringify(response, null, 2)}
-          </pre>
         </p>
+        <pre className="overflow-x-auto rounded-md bg-gray-200 p-3 font-mono">
+          {JSON.stringify(response, null, 2)}
+        </pre>
       </CardContent>
     </Card>
   );
