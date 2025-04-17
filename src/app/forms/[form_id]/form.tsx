@@ -1,7 +1,12 @@
 "use client";
 
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { tryCatch } from "~/lib/utils";
 import type { FormWithFields } from "~/server/db/schema";
+import { useTRPC } from "~/trpc/react";
 import {
   CheckboxField,
   EmailField,
@@ -11,10 +16,6 @@ import {
   TextAreaField,
   TextField,
 } from "./fields";
-import { Button } from "~/components/ui/button";
-import { Loader } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
 
 export const { fieldContext, formContext, useFieldContext } =
   createFormHookContexts();
@@ -65,25 +66,35 @@ export default function Form({ form: form_data }: FormProps) {
         };
       }, {}),
     } as Record<`field_${number}`, string | string[] | number>,
-    onSubmit: async ({ value }) => {
-      await submitFormMutation.mutateAsync({
-        formId: form_data.id,
-        responses: Object.entries(value).map(([key, val]) => {
-          const fieldId = Number(key.replace("field_", ""));
-          const field = form_data.fields.find((f) => f.id === fieldId)!;
+    onSubmit: async ({ formApi, value }) => {
+      const [data, error] = await tryCatch(() =>
+        submitFormMutation.mutateAsync({
+          formId: form_data.id,
+          responses: Object.entries(value).map(([key, val]) => {
+            const fieldId = Number(key.replace("field_", ""));
+            const field = form_data.fields.find((f) => f.id === fieldId)!;
 
-          // Typecheck on server
-          return {
-            fieldId,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-            value: val as any,
-            type: field.type,
-            required: field.required,
-          };
+            // Typecheck on server
+            return {
+              fieldId,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+              value: val as any,
+              type: field.type,
+              required: field.required,
+            };
+          }),
         }),
-      });
+      );
 
-      // formApi.reset();
+      if (error) {
+        console.log("Submit error", error);
+      }
+
+      if (data?.success) {
+        // TODO: Redirect to thank you page with information
+        // Also make sure to reset radio/checkbox groups
+        formApi.reset();
+      }
     },
   });
 
