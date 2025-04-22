@@ -5,11 +5,11 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
-import type { FormFieldWithOptions } from "~/server/db/schema/form";
+import type { FieldWithOptions } from "~/server/db/schema/form";
 import { useFieldContext } from "./form";
 
 interface FormFieldProps {
-  form_field: FormFieldWithOptions;
+  form_field: FieldWithOptions;
 }
 
 export function TextField({ form_field }: FormFieldProps) {

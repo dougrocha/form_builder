@@ -15,6 +15,20 @@
       "when": 1744798299691,
       "tag": "0001_talented_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745303613658,
+      "tag": "0002_round_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745303858592,
+      "tag": "0003_broad_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

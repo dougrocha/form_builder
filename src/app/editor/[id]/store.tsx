@@ -7,7 +7,7 @@ import { createStore, useStore } from "zustand";
 import type {
   FieldType,
   Form,
-  FormFieldWithOptions,
+  FieldWithOptions,
   FormWithFields,
 } from "~/server/db/schema";
 import { useTRPC } from "~/trpc/react";
@@ -56,7 +56,7 @@ type Action = {
 type FormEditorStore = State & Action;
 type FormEditorState = ReturnType<typeof createFormEditorStore>;
 
-function transformFormField(field: FormFieldWithOptions): EditorFormField {
+function transformFormField(field: FieldWithOptions): EditorFormField {
   return {
     id: String(field.id),
     type: field.type,

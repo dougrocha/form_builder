@@ -2,8 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   integer,
-  pgEnum,
-  pgTable,
+  pgSchema,
   text,
   timestamp,
   uuid,
@@ -11,6 +10,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
+
+export const formSchema = pgSchema("form");
 
 const timestamps = {
   createdAt: timestamp({ withTimezone: true })
@@ -24,7 +25,7 @@ const soft_delete = {
   deletedAt: timestamp({ withTimezone: true }),
 };
 
-export const fieldType = pgEnum("field_type", [
+export const fieldType = formSchema.enum("field_type", [
   "text",
   "textarea",
   "number",
@@ -34,7 +35,7 @@ export const fieldType = pgEnum("field_type", [
   "radio",
 ]);
 
-export const form = pgTable("form", {
+export const form = formSchema.table("form", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   title: varchar({ length: 256 }).notNull(),
   description: varchar({ length: 1024 }),
@@ -51,11 +52,11 @@ export const form = pgTable("form", {
 });
 
 export const formRelations = relations(form, ({ many }) => ({
-  fields: many(formField),
-  responses: many(userResponse),
+  fields: many(field),
+  responses: many(response),
 }));
 
-export const formField = pgTable("form_field", {
+export const field = formSchema.table("field", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formId: integer()
     .references(() => form.id, { onDelete: "cascade" })
@@ -69,18 +70,18 @@ export const formField = pgTable("form_field", {
   ...soft_delete,
 });
 
-export const formFieldRelations = relations(formField, ({ one, many }) => ({
+export const fieldRelations = relations(field, ({ one, many }) => ({
   form: one(form, {
-    fields: [formField.formId],
+    fields: [field.formId],
     references: [form.id],
   }),
-  options: many(formFieldOption),
+  options: many(fieldOption),
 }));
 
-export const formFieldOption = pgTable("form_field_option", {
+export const fieldOption = formSchema.table("field_option", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   fieldId: integer()
-    .references(() => formField.id, { onDelete: "cascade" })
+    .references(() => field.id, { onDelete: "cascade" })
     .notNull(),
   value: varchar({ length: 256 }).notNull(),
   position: integer().notNull(),
@@ -88,35 +89,32 @@ export const formFieldOption = pgTable("form_field_option", {
   ...soft_delete,
 });
 
-export const formFieldOptionRelations = relations(
-  formFieldOption,
-  ({ one }) => ({
-    field: one(formField, {
-      fields: [formFieldOption.fieldId],
-      references: [formField.id],
-    }),
+export const fieldOptionRelations = relations(fieldOption, ({ one }) => ({
+  field: one(field, {
+    fields: [fieldOption.fieldId],
+    references: [field.id],
   }),
-);
+}));
 
 export type Form = typeof form.$inferSelect;
-export type FormField = typeof formField.$inferSelect;
-export type FormFieldOption = typeof formFieldOption.$inferSelect;
+export type FormField = typeof field.$inferSelect;
+export type FormFieldOption = typeof fieldOption.$inferSelect;
 
 export type FormInsert = typeof form.$inferInsert;
-export type FormFieldInsert = typeof formField.$inferInsert;
-export type FormFieldOptionInsert = typeof formFieldOption.$inferInsert;
+export type FormFieldInsert = typeof field.$inferInsert;
+export type FormFieldOptionInsert = typeof fieldOption.$inferInsert;
 
 export type FieldType = (typeof fieldType.enumValues)[number];
 
-export type FormFieldWithOptions = FormField & {
+export type FieldWithOptions = FormField & {
   options: FormFieldOption[];
 };
 export type FormWithFields = Form & {
-  fields: FormFieldWithOptions[];
+  fields: FieldWithOptions[];
 };
 
 // User Responses
-export const userResponse = pgTable("user_response", {
+export const response = formSchema.table("response", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   formId: integer()
     .references(() => form.id, { onDelete: "cascade" })
@@ -129,68 +127,65 @@ export const userResponse = pgTable("user_response", {
     .notNull(),
 });
 
-export const userResponseRelations = relations(
-  userResponse,
-  ({ one, many }) => ({
-    form: one(form, {
-      fields: [userResponse.formId],
-      references: [form.id],
-    }),
-    user: one(user, {
-      fields: [userResponse.userId],
-      references: [user.id],
-    }),
-    fieldResponses: many(userFieldResponse),
+export const responseRelations = relations(response, ({ one, many }) => ({
+  form: one(form, {
+    fields: [response.formId],
+    references: [form.id],
   }),
-);
+  user: one(user, {
+    fields: [response.userId],
+    references: [user.id],
+  }),
+  fieldResponses: many(fieldResponse),
+}));
 
-export const userFieldResponse = pgTable("user_field_response", {
+export const fieldResponse = formSchema.table("field_response", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   responseId: integer()
-    .references(() => userResponse.id, { onDelete: "cascade" })
+    .references(() => response.id, { onDelete: "cascade" })
     .notNull(),
   fieldId: integer()
-    .references(() => formField.id)
+    .references(() => field.id)
     .notNull(),
   type: fieldType().notNull(),
   value: text(),
 });
 
-export const userFieldResponseRelations = relations(
-  userFieldResponse,
+export const fieldResponseRelations = relations(
+  fieldResponse,
   ({ one, many }) => ({
-    response: one(userResponse, {
-      fields: [userFieldResponse.responseId],
-      references: [userResponse.id],
+    response: one(response, {
+      fields: [fieldResponse.responseId],
+      references: [response.id],
     }),
-    field: one(formField, {
-      fields: [userFieldResponse.fieldId],
-      references: [formField.id],
+    field: one(field, {
+      fields: [fieldResponse.fieldId],
+      references: [field.id],
     }),
-    options: many(userFieldOptionResponse),
+    options: many(fieldOptionResponse),
   }),
 );
 
-export const userFieldOptionResponse = pgTable("user_field_option_response", {
+export const fieldOptionResponse = formSchema.table("field_option_response", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   responseFieldId: integer()
-    .references(() => userFieldResponse.id, { onDelete: "cascade" })
+    .references(() => fieldResponse.id, { onDelete: "cascade" })
     .notNull(),
   optionId: integer()
-    .references(() => formFieldOption.id)
+    .references(() => fieldOption.id)
     .notNull(),
 });
 
-export const userFieldOptionResponseRelations = relations(
-  userFieldOptionResponse,
+export const fieldOptionResponseRelations = relations(
+  fieldOptionResponse,
   ({ one }) => ({
-    responseField: one(userFieldResponse, {
-      fields: [userFieldOptionResponse.responseFieldId],
-      references: [userFieldResponse.id],
+    responseField: one(fieldResponse, {
+      fields: [fieldOptionResponse.responseFieldId],
+      references: [fieldResponse.id],
     }),
-    option: one(formFieldOption, {
-      fields: [userFieldOptionResponse.optionId],
-      references: [formFieldOption.id],
+    option: one(fieldOption, {
+      fields: [fieldOptionResponse.optionId],
+      references: [fieldOption.id],
     }),
   }),
 );
