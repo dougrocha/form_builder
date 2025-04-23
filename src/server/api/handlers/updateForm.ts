@@ -1,9 +1,6 @@
-import { and, eq, inArray, type ExtractTablesWithRelations } from "drizzle-orm";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
+import { and, eq, inArray } from "drizzle-orm";
 import type { z } from "zod";
-import { db } from "~/server/db";
-import type * as schema from "~/server/db/schema";
+import { db, type TransactionType } from "~/server/db";
 import {
   fieldOption as fieldOptionSchema,
   field as fieldSchema,
@@ -119,14 +116,8 @@ export default async function updateForm({
   });
 }
 
-// ??
-// It works
 async function handleFieldOptions(
-  tx: PgTransaction<
-    PostgresJsQueryResultHKT,
-    typeof schema,
-    ExtractTablesWithRelations<typeof schema>
-  >,
+  tx: TransactionType,
   fieldId: number,
   options: Array<{ id?: number; value: string; position: number }>,
 ) {
