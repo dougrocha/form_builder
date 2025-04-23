@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -8,10 +9,19 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { auth } from "~/server/auth";
 import { caller } from "~/trpc/server";
 
 export default async function FormList() {
   const forms = await caller.form.getAllForms();
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return <p>Please log in to view the forms.</p>;
+  }
 
   return (
     <>
@@ -25,7 +35,7 @@ export default async function FormList() {
             <CardDescription>{form.description}</CardDescription>
           </CardHeader>
           <CardContent className="mt-auto">
-            <Button size="sm">
+            <Button size="sm" asChild>
               <Link href={`/forms/${form.id}`}>Fill Out</Link>
             </Button>
           </CardContent>

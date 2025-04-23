@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import type { FieldWithOptions } from "~/server/db/schema/form";
 import { useFieldContext } from "./form";
+import { Button } from "~/components/ui/button";
 
 interface FormFieldProps {
   form_field: FieldWithOptions;
@@ -62,6 +63,7 @@ export function CheckboxField({ form_field }: FormFieldProps) {
           <div key={option.id} className="flex items-center space-x-2">
             <Checkbox
               id={option.value}
+              checked={field.state.value.includes(String(option.id))}
               onCheckedChange={(checked) => {
                 const id = String(option.id);
                 if (checked) {
@@ -95,7 +97,11 @@ export function RadioField({ form_field }: FormFieldProps) {
       >
         {form_field.options?.map((option) => (
           <div key={option.id} className="flex items-center space-x-2">
-            <RadioGroupItem value={String(option.id)} id={option.value} />
+            <RadioGroupItem
+              checked={field.state.value === String(option.id)}
+              value={String(option.id)}
+              id={option.value}
+            />
             <Label htmlFor={option.value}>{option.value}</Label>
           </div>
         ))}

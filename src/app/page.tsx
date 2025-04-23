@@ -63,22 +63,27 @@ export default async function Home() {
             </Tabs>
           )}
         </header>
-        <main className="flex flex-grow flex-col">
-          <h2 className="mb-8 text-2xl font-semibold">Recently Posted Forms</h2>
-          <ErrorBoundary fallback="Something went wrong">
-            <Suspense
-              fallback={
-                <div className="flex min-h-full flex-grow items-center justify-center">
-                  <Loader className="h-8 w-8 animate-spin" />
+
+        {session && (
+          <main className="flex flex-grow flex-col">
+            <h2 className="mb-8 text-2xl font-semibold">
+              Recently Posted Forms
+            </h2>
+            <ErrorBoundary fallback="Something went wrong">
+              <Suspense
+                fallback={
+                  <div className="flex min-h-full flex-grow items-center justify-center">
+                    <Loader className="h-8 w-8 animate-spin" />
+                  </div>
+                }
+              >
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <FormList />
                 </div>
-              }
-            >
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <FormList />
-              </div>
-            </Suspense>
-          </ErrorBoundary>
-        </main>
+              </Suspense>
+            </ErrorBoundary>
+          </main>
+        )}
       </div>
     </>
   );

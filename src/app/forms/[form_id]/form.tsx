@@ -91,8 +91,6 @@ export default function Form({ form: form_data }: FormProps) {
       }
 
       if (data?.success) {
-        // TODO: Redirect to thank you page with information
-        // Also make sure to reset radio/checkbox groups
         formApi.reset();
       }
     },
