@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { caller } from "~/trpc/server";
 import NewFormSubmitButton from "./new-form-submit-button";
 
@@ -24,11 +25,15 @@ export default function NewForm() {
       <h1 className="mb-4 text-2xl font-bold">Create New Form</h1>
       <form action={createForm}>
         <div className="mb-4">
-          <label className="block text-gray-700">Title</label>
+          <Label htmlFor="title" className="mb-2">
+            Title
+          </Label>
           <Input name="title" type="text" required />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
+          <Label htmlFor="description" className="mb-2">
+            Description
+          </Label>
           <Input name="description" type="text" />
         </div>
         <NewFormSubmitButton />
