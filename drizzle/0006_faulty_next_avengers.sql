@@ -1,0 +1,1 @@
+ALTER TABLE "form"."field_response" DROP COLUMN "type";

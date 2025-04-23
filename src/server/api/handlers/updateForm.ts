@@ -1,11 +1,15 @@
-import type { z } from "zod";
-import type { UpdateFormSchema } from "../schemas/formSchemas";
-import { db } from "~/server/db";
-import { eq, and, inArray, type ExtractTablesWithRelations } from "drizzle-orm";
-import { form, field, fieldOption } from "~/server/db/schema";
-import type * as schema from "~/server/db/schema";
+import { and, eq, inArray, type ExtractTablesWithRelations } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
+import type { z } from "zod";
+import { db } from "~/server/db";
+import type * as schema from "~/server/db/schema";
+import {
+  fieldOption as fieldOptionSchema,
+  field as fieldSchema,
+  form as formSchema,
+} from "~/server/db/schema";
+import type { UpdateFormSchema } from "../schemas/formSchemas";
 
 type UpdateFormInput = z.infer<typeof UpdateFormSchema>;
 
@@ -18,12 +22,15 @@ export default async function updateForm({
   await db.transaction(async (tx) => {
     // Update the form
     await tx
-      .update(form)
+      .update(formSchema)
       .set({ title, description })
-      .where(eq(form.id, formId));
+      .where(eq(formSchema.id, formId));
 
     const existingFields = await tx.query.field.findMany({
-      where: and(eq(field.formId, formId), eq(field.isDeleted, false)),
+      where: and(
+        eq(fieldSchema.formId, formId),
+        eq(fieldSchema.isDeleted, false),
+      ),
       with: { options: true },
     });
 
@@ -53,17 +60,17 @@ export default async function updateForm({
     // Delete the forms
     // This wont do a full deletion since I need to keep track of user responses
     await tx
-      .update(field)
+      .update(fieldSchema)
       .set({
         isDeleted: true,
         deletedAt: new Date(),
       })
-      .where(inArray(field.id, fieldsToDelete));
+      .where(inArray(fieldSchema.id, fieldsToDelete));
 
     // Update fields that already exist
     for (const field of fieldsToUpdate) {
       await tx
-        .update(field)
+        .update(fieldSchema)
         .set({
           label: field.label,
           description: field.description,
@@ -81,7 +88,7 @@ export default async function updateForm({
     // Insert new fields
     for (const field of fieldsToInsert) {
       const [newField] = await tx
-        .insert(field)
+        .insert(fieldSchema)
         .values({
           formId: formId,
           type: field.type,
@@ -90,11 +97,11 @@ export default async function updateForm({
           position: field.position,
           required: field.required ?? false,
         })
-        .returning({ id: field.id });
+        .returning({ id: fieldSchema.id });
 
       // Insert options if they exist
       if (newField?.id && field.options?.length) {
-        await tx.insert(fieldOption).values(
+        await tx.insert(fieldOptionSchema).values(
           field.options.map((option) => ({
             value: option.value,
             fieldId: newField.id,
@@ -106,9 +113,9 @@ export default async function updateForm({
 
     // Update the form title and description
     await tx
-      .update(form)
+      .update(formSchema)
       .set({ title, description })
-      .where(eq(form.id, formId));
+      .where(eq(formSchema.id, formId));
   });
 }
 
@@ -126,8 +133,8 @@ async function handleFieldOptions(
   // Fetch existing options for the field
   const existingOptions = await tx.query.fieldOption.findMany({
     where: and(
-      eq(fieldOption.fieldId, fieldId),
-      eq(fieldOption.isDeleted, false),
+      eq(fieldOptionSchema.fieldId, fieldId),
+      eq(fieldOptionSchema.isDeleted, false),
     ),
   });
 
@@ -157,27 +164,27 @@ async function handleFieldOptions(
 
   // Soft delete missing options
   await tx
-    .update(fieldOption)
+    .update(fieldOptionSchema)
     .set({
       isDeleted: true,
       deletedAt: new Date(),
     })
-    .where(inArray(fieldOption.id, optionsToDelete));
+    .where(inArray(fieldOptionSchema.id, optionsToDelete));
 
   // Update existing options
   for (const option of optionsToUpdate) {
     await tx
-      .update(fieldOption)
+      .update(fieldOptionSchema)
       .set({
         value: option.value,
         position: option.position,
       })
-      .where(eq(fieldOption.id, Number(option.id)));
+      .where(eq(fieldOptionSchema.id, Number(option.id)));
   }
 
   // Insert new options
   for (const option of optionsToInsert) {
-    await tx.insert(fieldOption).values({
+    await tx.insert(fieldOptionSchema).values({
       fieldId,
       value: option.value,
       position: option.position,

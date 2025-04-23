@@ -127,7 +127,7 @@ export const formRouter = createTRPCRouter({
         });
       }
 
-      return await ctx.db.query.userResponse.findFirst({
+      return await ctx.db.query.response.findFirst({
         where: eq(response.id, input.responseId),
         with: {
           user: {

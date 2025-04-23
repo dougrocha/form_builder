@@ -1,13 +1,11 @@
-import { db } from "~/server/db";
-import type { SubmitFormResponseSchema } from "../schemas/formSchemas";
-import { sql, eq } from "drizzle-orm";
 import type { z } from "zod";
+import { db } from "~/server/db";
 import {
-  form,
   fieldOptionResponse,
   fieldResponse,
   response,
 } from "~/server/db/schema";
+import type { SubmitFormResponseSchema } from "../schemas/formSchemas";
 
 type SubmitForm = z.infer<typeof SubmitFormResponseSchema>;
 
@@ -35,7 +33,6 @@ export default async function submitForm(
               responseId: userResponseId!.id,
               fieldId: response.fieldId,
               value: undefined,
-              type: response.type,
             },
           ])
           .returning({ id: fieldResponse.id });
@@ -43,7 +40,6 @@ export default async function submitForm(
           await tx.insert(fieldOptionResponse).values([
             {
               responseFieldId: userFieldResponseId!.id,
-              // TODO: Maybe check if this is even a valid id too
               optionId: Number(value),
             },
           ]);
@@ -56,7 +52,6 @@ export default async function submitForm(
               responseId: userResponseId!.id,
               fieldId: response.fieldId,
               value: String(response.value),
-              type: response.type,
             },
           ])
           .returning({ id: fieldResponse.id });
@@ -71,12 +66,5 @@ export default async function submitForm(
         }
       }
     }
-
-    await tx
-      .update(form)
-      .set({
-        responses: sql`${form.responses} + 1`,
-      })
-      .where(eq(form.id, formId));
   });
 }

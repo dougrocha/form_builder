@@ -97,17 +97,17 @@ export const fieldOptionRelations = relations(fieldOption, ({ one }) => ({
 }));
 
 export type Form = typeof form.$inferSelect;
-export type FormField = typeof field.$inferSelect;
-export type FormFieldOption = typeof fieldOption.$inferSelect;
+export type Field = typeof field.$inferSelect;
+export type FieldOption = typeof fieldOption.$inferSelect;
 
 export type FormInsert = typeof form.$inferInsert;
-export type FormFieldInsert = typeof field.$inferInsert;
-export type FormFieldOptionInsert = typeof fieldOption.$inferInsert;
+export type FieldInsert = typeof field.$inferInsert;
+export type FieldOptionInsert = typeof fieldOption.$inferInsert;
 
 export type FieldType = (typeof fieldType.enumValues)[number];
 
-export type FieldWithOptions = FormField & {
-  options: FormFieldOption[];
+export type FieldWithOptions = Field & {
+  options: FieldOption[];
 };
 export type FormWithFields = Form & {
   fields: FieldWithOptions[];
@@ -147,7 +147,6 @@ export const fieldResponse = formSchema.table("field_response", {
   fieldId: integer()
     .references(() => field.id)
     .notNull(),
-  type: fieldType().notNull(),
   value: text(),
 });
 
@@ -189,3 +188,18 @@ export const fieldOptionResponseRelations = relations(
     }),
   }),
 );
+
+export type Response = typeof response.$inferSelect;
+export type FieldResponse = typeof fieldResponse.$inferSelect;
+export type FieldOptionResponse = typeof fieldOptionResponse.$inferSelect;
+
+export type ResponseInsert = typeof response.$inferInsert;
+export type FieldResponseInsert = typeof fieldResponse.$inferInsert;
+export type FieldOptionResponseInsert = typeof fieldOptionResponse.$inferInsert;
+
+export type FieldResponseWithOptions = FieldResponse & {
+  options: FieldOptionResponse[];
+};
+export type ResponseWithFields = Response & {
+  fields: FieldResponseWithOptions[];
+};
