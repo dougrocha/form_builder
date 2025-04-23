@@ -7,6 +7,5 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["keyboard_forms_*"],
   casing: "snake_case",
 } satisfies Config;
