@@ -134,7 +134,7 @@ export default function EditorSidebar() {
             <SidebarGroupContent>
               <div className="space-y-6 p-4">
                 <div>
-                  <Label className="mb-2 block" htmlFor="field-label">
+                  <Label className="mb-2" htmlFor="field-label">
                     Label
                   </Label>
                   <Input
@@ -164,7 +164,7 @@ export default function EditorSidebar() {
                 {(selectedField.type === "radio" ||
                   selectedField.type === "checkbox") && (
                   <div>
-                    <Label className="mb-2 block">Options</Label>
+                    <Label className="mb-2">Options</Label>
                     <div className="space-y-2">
                       {selectedField.options?.map((option) => (
                         <div
