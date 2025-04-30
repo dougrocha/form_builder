@@ -86,9 +86,7 @@ const LoginForm = () => {
         </form>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button className="cursor-pointer" onClick={() => form.handleSubmit()}>
-          Log in
-        </Button>
+        <Button onClick={() => form.handleSubmit()}>Log in</Button>
       </CardFooter>
     </Card>
   );

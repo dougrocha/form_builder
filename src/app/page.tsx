@@ -37,7 +37,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="flex gap-2 md:ml-auto">
-                <Button className="cursor-pointer" variant="outline" asChild>
+                <Button variant="outline" asChild>
                   <Link href="/forms">
                     <FileText className="mr-2 h-4 w-4" /> My Forms
                   </Link>

@@ -32,12 +32,12 @@ export default async function FormLayout({
           </div>
         </div>
         <div className="grid gap-2 md:ml-auto md:flex">
-          <Button className="cursor-pointer" variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/">
               <Home className="mr-2 h-4 w-4" /> Home
             </Link>
           </Button>
-          <Button className="cursor-pointer" variant="outline" asChild>
+          <Button variant="outline" asChild>
             <Link href="/forms">
               <FileText className="mr-2 h-4 w-4" /> My Forms
             </Link>

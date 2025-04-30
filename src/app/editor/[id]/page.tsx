@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { auth } from "~/server/auth";
 import { caller, HydrateClient } from "~/trpc/server";
@@ -24,14 +24,7 @@ export default async function EditorPage({
   }
 
   if (!form) {
-    return (
-      <div className="bg-muted flex min-h-full items-center justify-center">
-        <div className="rounded-lg p-8 shadow-lg">
-          <h2 className="mb-2 text-2xl font-bold">Form not found!</h2>
-          <p>The form you are looking for does not exist.</p>
-        </div>
-      </div>
-    );
+    return notFound();
   }
 
   if (form.creator != session.user.id) {

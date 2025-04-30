@@ -2,9 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { tryCatch } from "~/lib/utils";
 import { caller } from "~/trpc/server";
-import FormNotFound from "../../form-not-found";
 import UnauthorizedFormAccess from "../../unauthorized-form-access";
-import ResponseNotFound from "./response-not-found";
+import { notFound } from "next/navigation";
 
 export default async function FormResponsePage({
   params,
@@ -23,7 +22,7 @@ export default async function FormResponsePage({
   );
 
   if (!form) {
-    return <FormNotFound />;
+    return notFound();
   }
 
   if (
@@ -34,7 +33,7 @@ export default async function FormResponsePage({
   }
 
   if (!response) {
-    return <ResponseNotFound formId={formId} />;
+    return notFound();
   }
 
   return (

@@ -104,9 +104,7 @@ const SignUpForm = () => {
         </form>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button className="cursor-pointer" onClick={() => form.handleSubmit()}>
-          Sign up
-        </Button>
+        <Button onClick={() => form.handleSubmit()}>Sign up</Button>
       </CardFooter>
     </Card>
   );

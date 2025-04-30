@@ -66,13 +66,12 @@ export default function EditorPreview() {
         <h1 className="flex-1 border-none text-lg font-semibold">
           {form.title || "Enter a Title"}
         </h1>
-        <Button className="cursor-pointer" variant="outline" asChild>
+        <Button variant="outline" asChild>
           <Link href="/forms">
             <FileText className="mr-2 h-4 w-4" /> My Forms
           </Link>
         </Button>
         <Button
-          className="cursor-pointer"
           variant="default"
           disabled={updateFormMutation.isPending}
           type="submit"
@@ -88,7 +87,7 @@ export default function EditorPreview() {
           )}
         </Button>
         <Separator orientation="vertical" className="ml-2 h-4" />
-        <SidebarTrigger className="-mr-1 rotate-180 cursor-pointer" />
+        <SidebarTrigger className="-mr-1 rotate-180" />
       </header>
       <div className="flex flex-1 flex-col gap-4 overflow-auto p-4">
         <Card className="mx-auto w-full max-w-3xl">
@@ -153,7 +152,7 @@ export default function EditorPreview() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 cursor-pointer"
+                          className="h-8 w-8"
                           onClick={() => moveField(index, index - 1)}
                           disabled={index === 0}
                           aria-label="Move field up"
@@ -163,7 +162,7 @@ export default function EditorPreview() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 cursor-pointer"
+                          className="h-8 w-8"
                           onClick={() => moveField(index, index + 1)}
                           disabled={index === formFields.length - 1}
                           aria-label="Move field down"
@@ -173,7 +172,7 @@ export default function EditorPreview() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer"
+                          className="text-destructive hover:text-destructive h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeField(field.id);
@@ -247,11 +246,7 @@ export default function EditorPreview() {
             )}
           </CardContent>
           <CardFooter>
-            <Button
-              type="submit"
-              disabled={true}
-              className="w-full cursor-pointer"
-            >
+            <Button type="submit" disabled={true} className="w-full">
               Preview Form Submission
             </Button>
           </CardFooter>

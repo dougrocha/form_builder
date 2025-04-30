@@ -178,12 +178,22 @@ export const formRouter = createTRPCRouter({
       // Validate that the form exists
       const formExists = await ctx.db.query.form.findFirst({
         where: eq(form.id, formId),
+        with: {
+          fields: true,
+        },
       });
 
       if (!formExists) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Form not found",
+        });
+      }
+
+      if (formExists.fields.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Form has no fields",
         });
       }
 

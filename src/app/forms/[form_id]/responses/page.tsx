@@ -3,10 +3,10 @@ import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { tryCatch } from "~/lib/utils";
 import { caller } from "~/trpc/server";
-import FormNotFound from "../form-not-found";
 import UnauthorizedFormAccess from "../unauthorized-form-access";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+import { notFound } from "next/navigation";
 
 export default async function FormResponsesPage({
   params,
@@ -19,7 +19,7 @@ export default async function FormResponsesPage({
   );
 
   if (!form) {
-    return <FormNotFound />;
+    return notFound();
   }
 
   if (form_error instanceof TRPCError && form_error.code == "UNAUTHORIZED") {

@@ -104,7 +104,6 @@ export default function EditorSidebar() {
               {fieldTypes.map((fieldType) => (
                 <SidebarMenuItem key={fieldType.id}>
                   <SidebarMenuButton
-                    className="cursor-pointer"
                     onClick={() => {
                       addField({
                         id: generateId("field"),
@@ -186,7 +185,7 @@ export default function EditorSidebar() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive h-8 w-8 cursor-pointer transition-colors"
+                            className="text-destructive hover:text-destructive h-8 w-8 transition-colors"
                             onClick={() => {
                               removeFormFieldOption(
                                 selectedField.id,
@@ -205,7 +204,7 @@ export default function EditorSidebar() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-full cursor-pointer"
+                        className="w-full"
                         onClick={() => {
                           addFormFieldOption(selectedField.id, {
                             id: generateId("field_option"),
@@ -248,7 +247,7 @@ function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarFallback className="bg-secondary text-secondary-foreground">

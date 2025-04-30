@@ -2,7 +2,7 @@
 
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { Loader } from "lucide-react";
+import { ArrowLeft, Loader } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { tryCatch } from "~/lib/utils";
 import type { FormWithFields } from "~/server/db/schema";
@@ -16,6 +16,7 @@ import {
   TextAreaField,
   TextField,
 } from "./fields";
+import Link from "next/link";
 
 export const { fieldContext, formContext, useFieldContext } =
   createFormHookContexts();
@@ -35,11 +36,11 @@ const { useAppForm } = createFormHook({
   formComponents: {},
 });
 
-interface FormProps {
+interface Props {
   form: FormWithFields;
 }
 
-export default function Form({ form: form_data }: FormProps) {
+export default function SubmissionForm({ form: form_data }: Props) {
   const trpc = useTRPC();
   const submitFormMutation = useMutation(
     trpc.form.submitFormResponse.mutationOptions(),
@@ -96,6 +97,23 @@ export default function Form({ form: form_data }: FormProps) {
     },
   });
 
+  if (form_data.fields.length === 0) {
+    return (
+      <>
+        <p>
+          There are currently no fields available in this form. Please check
+          back later when the creator updates the form.
+        </p>
+        <Button className="mt-4" asChild variant="link">
+          <Link href="/forms">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go back to forms
+          </Link>
+        </Button>
+      </>
+    );
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -135,11 +153,7 @@ export default function Form({ form: form_data }: FormProps) {
           children={(isSubmitting) => {
             return (
               <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="cursor-pointer"
-                >
+                <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <Loader className="h-8 w-8 animate-spin" />
                   ) : (
@@ -151,7 +165,6 @@ export default function Form({ form: form_data }: FormProps) {
                   type="reset"
                   disabled={isSubmitting}
                   onClick={() => form.reset()}
-                  className="cursor-pointer"
                 >
                   Reset
                 </Button>

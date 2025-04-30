@@ -6,19 +6,35 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { caller, HydrateClient } from "~/trpc/server";
-import Form from "./form";
-import FormNotFound from "./form-not-found";
+import SubmissionForm from "./form";
+import { notFound } from "next/navigation";
+import type { Metadata, ResolvingMetadata } from "next";
 
-export default async function FormPage({
-  params,
-}: {
-  params: Promise<{ form_id: number }>;
-}) {
-  const formId = Number((await params).form_id);
-  const form = await caller.form.getForm({ id: formId });
+type Props = {
+  params: Promise<{ form_id: string }>;
+};
+
+export async function generateMetadata(
+  { params }: Props,
+  _parent: ResolvingMetadata,
+): Promise<Metadata> {
+  // read route params
+  const { form_id } = await params;
+
+  // fetch data
+  const form = await caller.form.getForm({ id: Number(form_id) });
+
+  return {
+    title: form?.title,
+  };
+}
+
+export default async function FormPage({ params }: Props) {
+  const { form_id } = await params;
+  const form = await caller.form.getForm({ id: Number(form_id) });
 
   if (!form) {
-    return <FormNotFound />;
+    return notFound();
   }
 
   return (
@@ -30,7 +46,7 @@ export default async function FormPage({
         </CardHeader>
         <CardContent>
           <HydrateClient>
-            <Form form={form} />
+            <SubmissionForm form={form} />
           </HydrateClient>
         </CardContent>
       </Card>
