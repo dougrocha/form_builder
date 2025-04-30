@@ -64,3 +64,21 @@ Forms in this application consist of:
    ```
 
    The server will start at http://localhost:3000
+
+## Test Data
+
+You can find all test data in [seed.ts](./seed.ts).
+
+### Test Users
+
+The following test users are seeded into the database for development and testing purposes:
+
+- **User 1**
+
+  - Email: test@mail.com
+  - Password: password
+
+- **User 2**
+
+  - Email: jane.smith@example.com
+  - Password: password
