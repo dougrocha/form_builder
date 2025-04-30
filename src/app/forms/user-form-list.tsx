@@ -27,11 +27,16 @@ export default async function UserFormList() {
               </div>
               <CardDescription>{form.description}</CardDescription>
             </CardHeader>
-            <CardContent className="mt-auto flex gap-2">
+            <CardContent className="mt-auto flex flex-col gap-2 lg:flex-row">
               <Button size="sm" asChild>
                 <Link href={`/forms/${form.id}/responses`}>View Responses</Link>
               </Button>
-              <Button variant="secondary" size="sm" asChild className="ml-auto">
+              <Button
+                variant="secondary"
+                size="sm"
+                asChild
+                className="lg:ml-auto"
+              >
                 <Link href={`/editor/${form.id}`}>Edit</Link>
               </Button>
               <Button variant="secondary" size="sm" asChild>

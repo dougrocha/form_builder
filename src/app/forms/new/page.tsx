@@ -21,7 +21,7 @@ export default function NewForm() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto">
       <h1 className="mb-4 text-2xl font-bold">Create New Form</h1>
       <form action={createForm}>
         <div className="mb-4">

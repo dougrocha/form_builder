@@ -29,14 +29,14 @@ export default async function Home() {
                     Welcome back, {session.user.name}
                   </h1>
                   <p className="text-muted-foreground mt-1">
-                    Manage your forms and view responses
+                    Manage and customize your forms
                   </p>
                 </div>
                 <div className="ml-auto md:hidden">
                   <UserAvatar />
                 </div>
               </div>
-              <div className="flex gap-2 md:ml-auto">
+              <div className="grid gap-2 md:ml-auto md:flex">
                 <Button variant="outline" asChild>
                   <Link href="/forms">
                     <FileText className="mr-2 h-4 w-4" /> My Forms
@@ -77,7 +77,7 @@ export default async function Home() {
                   </div>
                 }
               >
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                   <FormList />
                 </div>
               </Suspense>

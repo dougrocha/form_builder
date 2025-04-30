@@ -8,7 +8,7 @@ export default function NewFormSubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <Button className="w-full lg:w-auto" type="submit" disabled={pending}>
       {pending ? (
         <>
           <Loader className="animate-spin" />

@@ -34,7 +34,7 @@ export default async function FormList() {
             </div>
             <CardDescription>{form.description}</CardDescription>
           </CardHeader>
-          <CardContent className="mt-auto">
+          <CardContent className="mt-auto flex flex-col gap-2 lg:flex-row">
             <Button size="sm" asChild>
               <Link href={`/forms/${form.id}`}>Fill Out</Link>
             </Button>
