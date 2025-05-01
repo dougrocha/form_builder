@@ -51,6 +51,7 @@ export default tseslint.config(
         "error",
         { drizzleObjectName: ["db", "ctx.db"] },
       ],
+      "react/no-children-prop": ["error", { allowFunctions: true }],
     },
   },
   {

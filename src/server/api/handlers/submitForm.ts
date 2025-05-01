@@ -9,7 +9,7 @@ import type { SubmitFormResponseSchema } from "../schemas/formSchemas";
 
 type SubmitForm = z.infer<typeof SubmitFormResponseSchema>;
 
-export default async function submitForm(
+export async function submitForm(
   userId: string,
   { formId, responses }: SubmitForm,
 ) {

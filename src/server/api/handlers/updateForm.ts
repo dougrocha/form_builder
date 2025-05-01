@@ -10,7 +10,7 @@ import type { UpdateFormSchema } from "../schemas/formSchemas";
 
 type UpdateFormInput = z.infer<typeof UpdateFormSchema>;
 
-export default async function updateForm({
+export async function updateForm({
   formId,
   title,
   description,
