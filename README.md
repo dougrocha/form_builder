@@ -18,7 +18,7 @@ Forms in this application consist of:
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/yourusername/keyboard_forms.git
+   git clone https://github.com/dougrocha/keyboard_forms.git
    cd keyboard_forms
    ```
 
