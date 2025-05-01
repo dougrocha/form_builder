@@ -11,6 +11,7 @@ import {
 } from "~/components/ui/card";
 import { caller } from "~/trpc/server";
 import { CreateNewFormButton } from "./create-new-form-button";
+import { DeleteFormButton } from "./delete-form-button";
 
 export default async function UserFormList() {
   const forms = await caller.user.getForms();
@@ -42,6 +43,7 @@ export default async function UserFormList() {
               <Button variant="secondary" size="sm" asChild>
                 <Link href={`/forms/${form.id}`}>Fill Out</Link>
               </Button>
+              <DeleteFormButton formId={form.id} />
             </CardContent>
           </Card>
         ))

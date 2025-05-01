@@ -25,15 +25,13 @@ export default function NewForm() {
   const createFormMutation = useMutation(
     trpc.form.createForm.mutationOptions({
       onSuccess: () => {
-        router.push("/forms");
-      },
-      onSettled: () => {
         void useQuery.invalidateQueries({
           queryKey: [trpc.form.getAllForms.queryKey],
         });
         void useQuery.invalidateQueries({
           queryKey: [trpc.user.getForms.queryKey],
         });
+        router.push("/forms");
       },
     }),
   );

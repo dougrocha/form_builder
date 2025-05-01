@@ -2,8 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { field, fieldOption, form, response } from "~/server/db/schema/form";
-import submitForm from "../handlers/submitForm";
-import updateForm from "../handlers/updateForm";
+import { hasAccess, submitForm, updateForm } from "../handlers";
 import {
   SubmitFormResponseSchema,
   UpdateFormSchema,
@@ -14,18 +13,7 @@ export const formRouter = createTRPCRouter({
   hasAccess: protectedProcedure
     .input(z.object({ formId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const f = await ctx.db.query.form.findFirst({
-        where: eq(form.id, input.formId),
-      });
-
-      if (f?.creator != ctx.session.user.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You do not have permission to access this form",
-        });
-      }
-
-      return { success: true };
+      return hasAccess(input.formId, ctx.session.user.id);
     }),
   createForm: protectedProcedure
     .input(
@@ -42,6 +30,13 @@ export const formRouter = createTRPCRouter({
         .returning({ id: form.id });
 
       return result;
+    }),
+  deleteForm: protectedProcedure
+    .input(z.object({ formId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      await hasAccess(input.formId, ctx.session.user.id);
+      await ctx.db.delete(form).where(eq(form.id, input.formId));
+      return { success: true };
     }),
   getForm: publicProcedure
     .input(z.object({ id: z.number().int() }))
@@ -63,16 +58,7 @@ export const formRouter = createTRPCRouter({
   getFormWithDeletedFields: protectedProcedure
     .input(z.object({ formId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const f = await ctx.db.query.form.findFirst({
-        where: eq(form.id, input.formId),
-      });
-
-      if (f?.creator != ctx.session.user.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized access to the form",
-        });
-      }
+      await hasAccess(input.formId, ctx.session.user.id);
 
       return await ctx.db.query.form.findFirst({
         where: eq(form.id, input.formId),
@@ -97,16 +83,7 @@ export const formRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const f = await ctx.db.query.form.findFirst({
-        where: eq(form.id, input.formId),
-      });
-
-      if (f?.creator != ctx.session.user.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized access to the form",
-        });
-      }
+      await hasAccess(input.formId, ctx.session.user.id);
 
       return await ctx.db.query.response.findMany({
         where: eq(response.formId, input.formId),
@@ -136,16 +113,7 @@ export const formRouter = createTRPCRouter({
   getFormResponse: protectedProcedure
     .input(z.object({ formId: z.number().int(), responseId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const f = await ctx.db.query.form.findFirst({
-        where: eq(form.id, input.formId),
-      });
-
-      if (f?.creator !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized access to the form",
-        });
-      }
+      await hasAccess(input.formId, ctx.session.user.id);
 
       return await ctx.db.query.response.findFirst({
         where: eq(response.id, input.responseId),
@@ -174,12 +142,10 @@ export const formRouter = createTRPCRouter({
   updateForm: protectedProcedure
     .input(UpdateFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const { formId } = input;
-
       await updateForm(input);
 
       return await ctx.db.query.form.findFirst({
-        where: eq(form.id, formId),
+        where: eq(form.id, input.formId),
         with: {
           fields: {
             with: {
