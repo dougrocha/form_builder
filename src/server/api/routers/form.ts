@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { form, field, fieldOption, response } from "~/server/db/schema/form";
+import { field, fieldOption, form, response } from "~/server/db/schema/form";
 import submitForm from "../handlers/submitForm";
 import updateForm from "../handlers/updateForm";
 import {
@@ -11,6 +11,22 @@ import {
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const formRouter = createTRPCRouter({
+  hasAccess: protectedProcedure
+    .input(z.object({ formId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const f = await ctx.db.query.form.findFirst({
+        where: eq(form.id, input.formId),
+      });
+
+      if (f?.creator != ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You do not have permission to access this form",
+        });
+      }
+
+      return { success: true };
+    }),
   createForm: protectedProcedure
     .input(
       z.object({ title: z.string().min(1), description: z.string().min(1) }),
@@ -72,8 +88,14 @@ export const formRouter = createTRPCRouter({
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.select().from(form);
   }),
-  getFormWithResponses: protectedProcedure
-    .input(z.object({ formId: z.number().int() }))
+  getFormResponses: protectedProcedure
+    .input(
+      z.object({
+        formId: z.number().int(),
+        pageIndex: z.number().int().min(0),
+        pageSize: z.number().int().min(5),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const f = await ctx.db.query.form.findFirst({
         where: eq(form.id, input.formId),
@@ -86,24 +108,22 @@ export const formRouter = createTRPCRouter({
         });
       }
 
-      return await ctx.db.query.form.findFirst({
-        where: eq(form.id, input.formId),
+      return await ctx.db.query.response.findMany({
+        where: eq(response.formId, input.formId),
+        offset: input.pageIndex * input.pageSize,
+        limit: input.pageSize,
         with: {
-          responses: {
+          user: {
+            columns: { email: true, name: true },
+          },
+          fieldResponses: {
             with: {
-              user: {
-                columns: { name: true },
-              },
-              fieldResponses: {
+              field: true,
+              options: {
                 with: {
-                  field: true,
-                  options: {
-                    with: {
-                      option: {
-                        columns: {
-                          value: true,
-                        },
-                      },
+                  option: {
+                    columns: {
+                      value: true,
                     },
                   },
                 },

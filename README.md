@@ -71,14 +71,9 @@ You can find all test data in [seed.ts](./seed.ts).
 
 ### Test Users
 
-The following test users are seeded into the database for development and testing purposes:
+The following test user is seeded into the database for development and testing purposes:
 
-- **User 1**
+- **User 1 - Recommended User**
 
   - Email: test@mail.com
-  - Password: password
-
-- **User 2**
-
-  - Email: jane.smith@example.com
   - Password: password
