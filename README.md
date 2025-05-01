@@ -69,11 +69,16 @@ Forms in this application consist of:
 
 You can find all test data in [seed.ts](./seed.ts).
 
+```bash
+# Seed the test data
+pnpm db:seed
+```
+
 ### Test Users
 
 The following test user is seeded into the database for development and testing purposes:
 
-- **User 1 - Recommended User**
+- **Recommended User**
 
-  - Email: test@mail.com
-  - Password: password
+  - Email: `test@mail.com`
+  - Password: `password`
