@@ -31,535 +31,484 @@ const accounts: schema.AccountInsert[] = [
 
 const forms: schema.FormInsert[] = [
   {
-    id: 1,
     title: "Favorite Food",
     description: "What is your favorite food?",
     creator: "1",
   },
   {
-    id: 2,
     title: "Favorite Game",
     description: "What is your favorite game?",
     creator: "2",
   },
   {
-    id: 3,
     title: "Visit Feedback",
     description: "How was your visit today?",
     creator: "5",
   },
   {
-    id: 4,
     title: "User Feedback",
     description: "Please provide your feedback about our service.",
     creator: "4",
   },
   {
-    id: 5,
     title: "Favorite Movie",
     description: "What is your favorite movie and why?",
     creator: "6",
   },
 ];
 
-const fields: schema.FieldInsert[] = [
-  {
-    id: 1,
-    formId: 1,
-    label: "Favorite Dish",
-    type: "text",
-    required: true,
-    position: 1,
-  },
-  {
-    id: 2,
-    formId: 1,
-    label: "Favorite Snack",
-    type: "text",
-    required: true,
-    position: 2,
-  },
-  {
-    id: 3,
-    formId: 1,
-    label: "Taste Preference",
-    type: "radio",
-    required: true,
-    position: 3,
-  },
-  {
-    id: 4,
-    formId: 2,
-    label: "Preferred Console",
-    type: "text",
-    required: true,
-    position: 1,
-  },
-  {
-    id: 5,
-    formId: 2,
-    label: "Favorite Character",
-    type: "text",
-    required: true,
-    position: 2,
-  },
-  {
-    id: 6,
-    formId: 3,
-    label: "Overall Experience",
-    type: "textarea",
-    required: true,
-    position: 1,
-  },
-  {
-    id: 7,
-    formId: 3,
-    label: "Would you recommend us?",
-    type: "text",
-    required: true,
-    position: 2,
-  },
-  {
-    id: 8,
-    formId: 4,
-    label: "Feedback",
-    type: "textarea",
-    required: true,
-    position: 1,
-  },
-  {
-    id: 9,
-    formId: 5,
-    label: "Favorite Movie",
-    type: "text",
-    required: true,
-    position: 1,
-  },
-  {
-    id: 10,
-    formId: 5,
-    label: "Reason",
-    type: "textarea",
-    required: true,
-    position: 2,
-  },
-  {
-    id: 11,
-    formId: 1,
-    label: "Preferred Regions",
-    type: "checkbox",
-    required: true,
-    position: 4,
-  },
-];
+const fields = (form: schema.Form[]): schema.FieldInsert[] => {
+  return [
+    {
+      formId: form[0]!.id,
+      label: "Favorite Dish",
+      type: "text",
+      required: true,
+      position: 1,
+    },
+    {
+      formId: form[0]!.id,
+      label: "Favorite Snack",
+      type: "text",
+      required: true,
+      position: 2,
+    },
+    {
+      formId: form[0]!.id,
+      label: "Taste Preference",
+      type: "radio",
+      required: true,
+      position: 3,
+    },
+    {
+      formId: form[1]!.id,
+      label: "Preferred Console",
+      type: "text",
+      required: true,
+      position: 1,
+    },
+    {
+      formId: form[1]!.id,
+      label: "Favorite Character",
+      type: "text",
+      required: true,
+      position: 2,
+    },
+    {
+      formId: form[2]!.id,
+      label: "Overall Experience",
+      type: "textarea",
+      required: true,
+      position: 1,
+    },
+    {
+      formId: form[2]!.id,
+      label: "Would you recommend us?",
+      type: "text",
+      required: true,
+      position: 2,
+    },
+    {
+      formId: form[3]!.id,
+      label: "Feedback",
+      type: "textarea",
+      required: true,
+      position: 1,
+    },
+    {
+      formId: form[4]!.id,
+      label: "Favorite Movie",
+      type: "text",
+      required: true,
+      position: 1,
+    },
+    {
+      formId: form[4]!.id,
+      label: "Reason",
+      type: "textarea",
+      required: true,
+      position: 2,
+    },
+    {
+      formId: form[0]!.id,
+      label: "Preferred Regions",
+      type: "checkbox",
+      required: true,
+      position: 4,
+    },
+  ];
+};
 
-const options: schema.FieldOptionInsert[] = [
-  {
-    id: 1,
-    position: 1,
-    fieldId: 3,
-    value: "Sweet",
-  },
-  {
-    id: 2,
-    position: 2,
-    fieldId: 3,
-    value: "Salty",
-  },
-  {
-    id: 3,
-    position: 3,
-    fieldId: 3,
-    value: "Sour",
-  },
-  {
-    id: 4,
-    position: 4,
-    fieldId: 3,
-    value: "Savory",
-    deletedAt: new Date(),
-    isDeleted: true,
-  },
-  {
-    id: 5,
-    position: 1,
-    fieldId: 11,
-    value: "North America",
-  },
-  {
-    id: 6,
-    position: 2,
-    fieldId: 11,
-    value: "Europe",
-  },
-  {
-    id: 7,
-    position: 3,
-    fieldId: 11,
-    value: "Asia",
-  },
-  {
-    id: 8,
-    position: 4,
-    fieldId: 11,
-    value: "South America",
-  },
-];
+const options = (fields: schema.Field[]): schema.FieldOptionInsert[] => {
+  return [
+    {
+      position: 1,
+      fieldId: fields[2]!.id,
+      value: "Sweet",
+    },
+    {
+      position: 2,
+      fieldId: fields[2]!.id,
+      value: "Salty",
+    },
+    {
+      position: 3,
+      fieldId: fields[2]!.id,
+      value: "Sour",
+    },
+    {
+      position: 4,
+      fieldId: fields[2]!.id,
+      value: "Savory",
+      deletedAt: new Date(),
+      isDeleted: true,
+    },
+    {
+      position: 1,
+      fieldId: fields[10]!.id,
+      value: "North America",
+    },
+    {
+      position: 2,
+      fieldId: fields[10]!.id,
+      value: "Europe",
+    },
+    {
+      position: 3,
+      fieldId: fields[10]!.id,
+      value: "Asia",
+    },
+    {
+      position: 4,
+      fieldId: fields[10]!.id,
+      value: "South America",
+    },
+  ];
+};
 
-const responses: schema.ResponseInsert[] = [
-  {
-    id: 1,
-    userId: "1",
-    formId: 1,
-  },
-  {
-    id: 2,
-    userId: "2",
-    formId: 2,
-  },
-  {
-    id: 3,
-    userId: "3",
-    formId: 3,
-  },
-  {
-    id: 4,
-    userId: "4",
-    formId: 4,
-  },
-  {
-    id: 5,
-    userId: "5",
-    formId: 5,
-  },
-  {
-    id: 6,
-    userId: "1",
-    formId: 1,
-  },
-  {
-    id: 7,
-    userId: "2",
-    formId: 1,
-  },
-  {
-    id: 8,
-    userId: "3",
-    formId: 1,
-  },
-  {
-    id: 9,
-    userId: "4",
-    formId: 1,
-  },
-  {
-    id: 10,
-    userId: "5",
-    formId: 1,
-  },
-  {
-    id: 11,
-    userId: "6",
-    formId: 1,
-  },
-  {
-    id: 12,
-    userId: "7",
-    formId: 1,
-  },
-  {
-    id: 13,
-    userId: "1",
-    formId: 1,
-  },
-  {
-    id: 14,
-    userId: "2",
-    formId: 1,
-  },
-  {
-    id: 15,
-    userId: "3",
-    formId: 1,
-  },
-];
+const responses = (forms: schema.Form[]): schema.ResponseInsert[] => {
+  return [
+    {
+      userId: "1",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "2",
+      formId: forms[1]!.id,
+    },
+    {
+      userId: "3",
+      formId: forms[2]!.id,
+    },
+    {
+      userId: "4",
+      formId: forms[3]!.id,
+    },
+    {
+      userId: "5",
+      formId: forms[4]!.id,
+    },
+    {
+      userId: "1",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "2",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "3",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "4",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "5",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "6",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "7",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "1",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "2",
+      formId: forms[0]!.id,
+    },
+    {
+      userId: "3",
+      formId: forms[0]!.id,
+    },
+  ];
+};
 
-const responseFields: schema.FieldResponseInsert[] = [
-  {
-    id: 1,
-    responseId: 1,
-    fieldId: 1,
-    value: "Pizza",
-  },
-  {
-    id: 2,
-    responseId: 1,
-    fieldId: 2,
-    value: "Chips",
-  },
-  {
-    id: 3,
-    responseId: 1,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 4,
-    responseId: 2,
-    fieldId: 4,
-    value: "PlayStation",
-  },
-  {
-    id: 5,
-    responseId: 2,
-    fieldId: 5,
-    value: "Kratos",
-  },
-  {
-    id: 6,
-    responseId: 3,
-    fieldId: 6,
-    value: "Great!",
-  },
-  {
-    id: 7,
-    responseId: 3,
-    fieldId: 7,
-    value: "Yes",
-  },
-  {
-    id: 8,
-    responseId: 4,
-    fieldId: 8,
-    value: "Excellent service!",
-  },
-  {
-    id: 9,
-    responseId: 5,
-    fieldId: 9,
-    value: "Inception",
-  },
-  {
-    id: 10,
-    responseId: 5,
-    fieldId: 10,
-    value: "Mind-bending plot and great visuals.",
-  },
-  {
-    id: 11,
-    responseId: 6,
-    fieldId: 1,
-    value: "Sushi",
-  },
-  {
-    id: 12,
-    responseId: 6,
-    fieldId: 2,
-    value: "Edamame",
-  },
-  {
-    id: 13,
-    responseId: 6,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 14,
-    responseId: 7,
-    fieldId: 1,
-    value: "Tacos",
-  },
-  {
-    id: 15,
-    responseId: 7,
-    fieldId: 2,
-    value: "Guacamole",
-  },
-  {
-    id: 16,
-    responseId: 7,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 17,
-    responseId: 8,
-    fieldId: 1,
-    value: "Pasta",
-  },
-  {
-    id: 18,
-    responseId: 8,
-    fieldId: 2,
-    value: "Garlic Bread",
-  },
-  {
-    id: 19,
-    responseId: 8,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 20,
-    responseId: 9,
-    fieldId: 1,
-    value: "Burger",
-  },
-  {
-    id: 21,
-    responseId: 9,
-    fieldId: 2,
-    value: "Fries",
-  },
-  {
-    id: 22,
-    responseId: 9,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 23,
-    responseId: 10,
-    fieldId: 1,
-    value: "Salad",
-  },
-  {
-    id: 24,
-    responseId: 10,
-    fieldId: 2,
-    value: "Nuts",
-  },
-  {
-    id: 25,
-    responseId: 10,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 26,
-    responseId: 11,
-    fieldId: 1,
-    value: "Steak",
-  },
-  {
-    id: 27,
-    responseId: 11,
-    fieldId: 2,
-    value: "Cheese",
-  },
-  {
-    id: 28,
-    responseId: 11,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 29,
-    responseId: 12,
-    fieldId: 1,
-    value: "Ice Cream",
-  },
-  {
-    id: 30,
-    responseId: 12,
-    fieldId: 2,
-    value: "Cookies",
-  },
-  {
-    id: 31,
-    responseId: 12,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 32,
-    responseId: 13,
-    fieldId: 1,
-    value: "Pizza",
-  },
-  {
-    id: 33,
-    responseId: 13,
-    fieldId: 2,
-    value: "Wings",
-  },
-  {
-    id: 34,
-    responseId: 13,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 35,
-    responseId: 14,
-    fieldId: 1,
-    value: "Curry",
-  },
-  {
-    id: 36,
-    responseId: 14,
-    fieldId: 2,
-    value: "Samosas",
-  },
-  {
-    id: 37,
-    responseId: 14,
-    fieldId: 3,
-    value: undefined,
-  },
-  {
-    id: 38,
-    responseId: 15,
-    fieldId: 1,
-    value: "Dumplings",
-  },
-  {
-    id: 39,
-    responseId: 15,
-    fieldId: 2,
-    value: "Spring Rolls",
-  },
-  {
-    id: 40,
-    responseId: 15,
-    fieldId: 3,
-    value: undefined,
-  },
-];
+const responseFields = (
+  responses: schema.Response[],
+  fields: schema.Field[],
+): schema.FieldResponseInsert[] => {
+  return [
+    {
+      responseId: responses[0]!.id,
+      fieldId: fields[0]!.id,
+      value: "Pizza",
+    },
+    {
+      responseId: responses[0]!.id,
+      fieldId: fields[0]!.id,
+      value: "Chips",
+    },
+    {
+      responseId: responses[0]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[1]!.id,
+      fieldId: fields[3]!.id,
+      value: "PlayStation",
+    },
+    {
+      responseId: responses[1]!.id,
+      fieldId: fields[4]!.id,
+      value: "Kratos",
+    },
+    {
+      responseId: responses[2]!.id,
+      fieldId: fields[5]!.id,
+      value: "Great!",
+    },
+    {
+      responseId: responses[2]!.id,
+      fieldId: fields[6]!.id,
+      value: "Yes",
+    },
+    {
+      responseId: responses[3]!.id,
+      fieldId: fields[7]!.id,
+      value: "Excellent service!",
+    },
+    {
+      responseId: responses[4]!.id,
+      fieldId: fields[8]!.id,
+      value: "Inception",
+    },
+    {
+      responseId: responses[4]!.id,
+      fieldId: fields[9]!.id,
+      value: "Mind-bending plot and great visuals.",
+    },
+    {
+      responseId: responses[5]!.id,
+      fieldId: fields[0]!.id,
+      value: "Sushi",
+    },
+    {
+      responseId: responses[5]!.id,
+      fieldId: fields[1]!.id,
+      value: "Edamame",
+    },
+    {
+      responseId: responses[5]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[6]!.id,
+      fieldId: fields[0]!.id,
+      value: "Tacos",
+    },
+    {
+      responseId: responses[6]!.id,
+      fieldId: fields[1]!.id,
+      value: "Guacamole",
+    },
+    {
+      responseId: responses[6]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[7]!.id,
+      fieldId: fields[0]!.id,
+      value: "Pasta",
+    },
+    {
+      responseId: responses[7]!.id,
+      fieldId: fields[1]!.id,
+      value: "Garlic Bread",
+    },
+    {
+      responseId: responses[7]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[8]!.id,
+      fieldId: fields[0]!.id,
+      value: "Burger",
+    },
+    {
+      responseId: responses[8]!.id,
+      fieldId: fields[1]!.id,
+      value: "Fries",
+    },
+    {
+      responseId: responses[8]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[9]!.id,
+      fieldId: fields[0]!.id,
+      value: "Salad",
+    },
+    {
+      responseId: responses[9]!.id,
+      fieldId: fields[1]!.id,
+      value: "Nuts",
+    },
+    {
+      responseId: responses[9]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[10]!.id,
+      fieldId: fields[0]!.id,
+      value: "Steak",
+    },
+    {
+      responseId: responses[10]!.id,
+      fieldId: fields[1]!.id,
+      value: "Cheese",
+    },
+    {
+      responseId: responses[10]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[11]!.id,
+      fieldId: fields[0]!.id,
+      value: "Ice Cream",
+    },
+    {
+      responseId: responses[11]!.id,
+      fieldId: fields[1]!.id,
+      value: "Cookies",
+    },
+    {
+      responseId: responses[11]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[12]!.id,
+      fieldId: fields[0]!.id,
+      value: "Pizza",
+    },
+    {
+      responseId: responses[12]!.id,
+      fieldId: fields[1]!.id,
+      value: "Wings",
+    },
+    {
+      responseId: responses[12]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[13]!.id,
+      fieldId: fields[0]!.id,
+      value: "Curry",
+    },
+    {
+      responseId: responses[13]!.id,
+      fieldId: fields[1]!.id,
+      value: "Samosas",
+    },
+    {
+      responseId: responses[13]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+    {
+      responseId: responses[14]!.id,
+      fieldId: fields[0]!.id,
+      value: "Dumplings",
+    },
+    {
+      responseId: responses[14]!.id,
+      fieldId: fields[1]!.id,
+      value: "Spring Rolls",
+    },
+    {
+      responseId: responses[14]!.id,
+      fieldId: fields[2]!.id,
+      value: undefined,
+    },
+  ];
+};
 
-const responseFieldOptions: schema.FieldOptionResponseInsert[] = [
-  {
-    // This should match up to the favorite food form
-    // The response should be the radio field with value "sweet"
-    id: 1,
-    optionId: 1, // Sweet
-    responseFieldId: 3,
-  },
-  {
-    id: 2,
-    optionId: 2, // Salty
-    responseFieldId: 3,
-  },
-  {
-    id: 3,
-    optionId: 3, // Sour
-    responseFieldId: 3,
-  },
-];
+const responseFieldOptions = (
+  responseFields: schema.FieldResponse[],
+  options: schema.FieldOption[],
+): schema.FieldOptionResponseInsert[] => {
+  return [
+    {
+      // This should match up to the favorite food form
+      // The response should be the radio field with value "sweet"
+      optionId: options[0]!.id, // Sweet
+      responseFieldId: responseFields[2]!.id,
+    },
+    {
+      optionId: options[1]!.id, // Salty
+      responseFieldId: responseFields[2]!.id,
+    },
+    {
+      optionId: options[2]!.id, // Sour
+      responseFieldId: responseFields[2]!.id,
+    },
+  ];
+};
 
 async function main() {
   await reset(db, schema);
 
-  await db.insert(schema.user).values(users);
-  await db.insert(schema.account).values(accounts);
+  await db.insert(schema.user).values(users).returning();
+  await db.insert(schema.account).values(accounts).returning();
 
-  await db.insert(schema.form).values(forms);
-  await db.insert(schema.field).values(fields);
-  await db.insert(schema.fieldOption).values(options);
+  const updateForms = await db.insert(schema.form).values(forms).returning();
+  const updateFields = await db
+    .insert(schema.field)
+    .values(fields(updateForms))
+    .returning();
+  const updateOptions = await db
+    .insert(schema.fieldOption)
+    .values(options(updateFields))
+    .returning();
 
-  await db.insert(schema.response).values(responses);
-  await db.insert(schema.fieldResponse).values(responseFields);
-  await db.insert(schema.fieldOptionResponse).values(responseFieldOptions);
+  const updateResponse = await db
+    .insert(schema.response)
+    .values(responses(updateForms))
+    .returning();
+  const updateFieldResponse = await db
+    .insert(schema.fieldResponse)
+    .values(responseFields(updateResponse, updateFields))
+    .returning();
+  await db
+    .insert(schema.fieldOptionResponse)
+    .values(responseFieldOptions(updateFieldResponse, updateOptions))
+    .returning();
 }
 
 await main();
